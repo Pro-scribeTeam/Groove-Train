@@ -1,0 +1,5 @@
+<svg width="1792" height="1024" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1792" height="1024" fill="#ffffff"/>
+  <circle cx="896" cy="512" r="300" fill="none" stroke="#333" stroke-width="3"/>
+  <text x="896" y="540" font-family="'Boogaloo', cursive" font-size="48" fill="#666" text-anchor="middle">Coloring Template</text>
+</svg>

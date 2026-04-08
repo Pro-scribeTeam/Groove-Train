@@ -1,0 +1,12 @@
+<svg width="620" height="200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#00c8ff;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#ffe600;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ff2d78;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="620" height="200" fill="#050a1a" rx="10"/>
+  <text x="310" y="90" font-family="'Boogaloo', cursive" font-size="64" font-weight="bold" fill="url(#grad1)" text-anchor="middle">🚂 GROOVE TRAIN TIME</text>
+  <text x="310" y="140" font-family="'Orbitron', sans-serif" font-size="20" fill="#00c8ff" text-anchor="middle">Stay on the Right Track</text>
+</svg>
