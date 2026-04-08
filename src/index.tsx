@@ -44,7 +44,7 @@ app.get('/', (c) => {
 
 <!-- HERO -->
 <section class="hero">
-  <img class="hero-logo" src="/static/hero-logo.svg" alt="Groove Train Time">
+  <img class="hero-logo" src="/static/hero-logo-real.png" alt="Groove Train Time">
   <p class="hero-tagline">🚂 Music + Learning = All Aboard! 🎵</p>
   <button onclick="boardTrain()" class="hero-cta">Board the Train</button>
 </section>
@@ -135,7 +135,7 @@ app.get('/', (c) => {
 
 <!-- HERO IMAGE -->
 <div class="hero-banner">
-  <img src="/static/train-banner.jpg" alt="Groove Train">
+  <img src="/static/train-banner-real.png" alt="Groove Train">
 </div>
 
 <div class="track-divider"></div>
