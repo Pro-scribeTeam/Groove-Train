@@ -24,7 +24,7 @@ function showPage(page) {
 }
 
 function goBack() { 
-  showPage('train'); 
+  showPage('home'); 
 }
 
 // Coloring Game Initialization

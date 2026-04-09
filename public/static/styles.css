@@ -395,11 +395,22 @@ footer span { color: var(--neon-blue); }
   display: flex;
   justify-content: center;
   padding: 0;
+  overflow: hidden;
 }
 .hero-banner img {
   width: 100%;
   max-width: 1200px;
   display: block;
+  animation: trainBannerFloat 4s ease-in-out infinite;
+  transform-origin: center;
+}
+@keyframes trainBannerFloat {
+  0%, 100% { 
+    transform: translateY(0) scale(1);
+  }
+  50% { 
+    transform: translateY(-15px) scale(1.02);
+  }
 }
 
 /* ── WELCOME STRIP ── */
