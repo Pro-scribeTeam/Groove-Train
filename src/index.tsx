@@ -231,84 +231,121 @@ app.get('/', (c) => {
     <h2>🌈 Rainbow Painter</h2>
     <p>Hover to see each section · Click to fill with color!</p>
 
-    <svg id="cgsvg" viewBox="0 0 1792 1024" xmlns="http://www.w3.org/2000/svg">
-      <image href="/static/coloring-bw.jpg" width="1792" height="1024"/>
+    <svg id="cgsvg" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+      <image href="/static/coloring-rainbow-painter-bw.jpg" width="1024" height="1024"/>
       
-      <rect class="r" id="r-sky" data-label="Sky" fill="#87CEEB" x="0" y="0" width="1792" height="1024"/>
+      <!-- Sky Background -->
+      <rect class="r" id="r-sky" data-label="Sky Background" fill="#87CEEB" x="0" y="0" width="1024" height="700" fill-opacity="0"/>
       
-      <path class="r" id="r-rb-red" data-label="Rainbow – Red" fill="#FF2020" d="M0,701.8 A1684,1684 0 0 1 1792,898.2 L1792,991.7 A1612,1612 0 0 0 0,782.4Z"/>
-      <path class="r" id="r-rb-orange" data-label="Rainbow – Orange" fill="#FF8800" d="M0,782.4 A1612,1612 0 0 1 1792,991.7 L741.0,0 A1545,1545 0 0 0 0,858.3Z"/>
-      <path class="r" id="r-rb-yellow" data-label="Rainbow – Yellow" fill="#FFE600" d="M0,858.3 A1545,1545 0 0 1 741.0,0 L741.0,0 A1478,1478 0 0 0 0,935.2Z"/>
-      <path class="r" id="r-rb-green" data-label="Rainbow – Green" fill="#00CC00" d="M0,935.2 A1478,1478 0 0 1 741.0,0 L741.0,0 A1409,1409 0 0 0 0,1015.6Z"/>
-      <path class="r" id="r-rb-blue" data-label="Rainbow – Blue" fill="#0077FF" d="M0,1015.6 A1409,1409 0 0 1 741.0,0 L741.0,0 A1340,1340 0 0 0 741.0,0Z"/>
-      <path class="r" id="r-rb-violet" data-label="Rainbow – Violet" fill="#7700CC" d="M741.0,0 A1340,1340 0 0 1 741.0,0 L741.0,0 A1272,1272 0 0 0 741.0,0Z"/>
+      <!-- Rainbow Bands (6 separate) -->
+      <path class="r" id="r-rb-red" data-label="Rainbow – Red Band" fill="#FF2020" fill-opacity="0" d="M160,0 Q340,125 420,150 Q500,175 560,190 Q620,205 680,212 L680,250 Q620,243 560,228 Q500,213 420,188 Q340,163 160,38 Z"/>
+      <path class="r" id="r-rb-orange" data-label="Rainbow – Orange Band" fill="#FF8800" fill-opacity="0" d="M210,0 Q370,120 450,145 Q530,170 590,185 Q650,200 705,207 L705,245 Q650,238 590,223 Q530,208 450,183 Q370,158 210,33 Z"/>
+      <path class="r" id="r-rb-yellow" data-label="Rainbow – Yellow Band" fill="#FFE600" fill-opacity="0" d="M255,0 Q395,115 475,140 Q555,165 615,180 Q675,195 730,202 L730,240 Q675,233 615,218 Q555,203 475,178 Q395,153 255,28 Z"/>
+      <path class="r" id="r-rb-green" data-label="Rainbow – Green Band" fill="#00CC00" fill-opacity="0" d="M295,0 Q415,110 495,135 Q575,160 635,175 Q695,190 750,197 L750,235 Q695,228 635,213 Q575,198 495,173 Q415,148 295,23 Z"/>
+      <path class="r" id="r-rb-blue" data-label="Rainbow – Blue Band" fill="#0077FF" fill-opacity="0" d="M330,0 Q435,105 515,130 Q595,155 655,170 Q715,185 770,192 L770,230 Q715,223 655,208 Q595,193 515,168 Q435,143 330,18 Z"/>
+      <path class="r" id="r-rb-violet" data-label="Rainbow – Violet Band" fill="#7700CC" fill-opacity="0" d="M360,0 Q455,100 535,125 Q615,150 675,165 Q735,180 790,187 L790,225 Q735,218 675,203 Q615,188 535,163 Q455,138 360,13 Z"/>
       
-      <ellipse class="r" id="r-cloud-l" data-label="Left Cloud" fill="#FFFFFF" cx="280" cy="490" rx="260" ry="175"/>
-      <ellipse class="r" id="r-cloud-r" data-label="Right Cloud" fill="#FFFFFF" cx="1490" cy="390" rx="260" ry="220"/>
+      <!-- Clouds -->
+      <g class="r" id="r-cloud-l" data-label="Left Cloud">
+        <ellipse fill="#FFFFFF" fill-opacity="0" cx="120" cy="200" rx="95" ry="85"/>
+        <ellipse fill="#FFFFFF" fill-opacity="0" cx="200" cy="180" rx="80" ry="70"/>
+        <ellipse fill="#FFFFFF" fill-opacity="0" cx="160" cy="250" rx="90" ry="75"/>
+      </g>
+      <g class="r" id="r-cloud-r" data-label="Right Cloud">
+        <ellipse fill="#FFFFFF" fill-opacity="0" cx="880" cy="180" rx="85" ry="75"/>
+        <ellipse fill="#FFFFFF" fill-opacity="0" cx="930" cy="200" rx="75" ry="80"/>
+        <ellipse fill="#FFFFFF" fill-opacity="0" cx="900" cy="265" rx="80" ry="70"/>
+      </g>
       
-      <path class="r" id="r-plant-l" data-label="Left Plants" fill="#1A5C1A" d="M0,420 Q100,380 230,420 Q330,450 360,530 Q280,660 150,700 Q50,720 0,680Z"/>
-      <ellipse class="r" id="r-plant-l2" data-label="Left Plants" fill="#1A5C1A" cx="150" cy="810" rx="200" ry="120"/>
+      <!-- Grass -->
+      <path class="r" id="r-grass" data-label="Grass" fill="#3CB371" fill-opacity="0" d="M0,640 Q256,610 512,620 Q768,610 1024,640 L1024,1024 L0,1024 Z"/>
       
-      <path class="r" id="r-plant-r" data-label="Right Plants" fill="#1A5C1A" d="M1450,400 Q1580,350 1720,380 Q1792,400 1792,450 L1792,850 Q1680,820 1560,790 Q1450,760 1430,660 Q1410,560 1450,480Z"/>
-      <ellipse class="r" id="r-plant-r2" data-label="Right Plants" fill="#1A5C1A" cx="1620" cy="830" rx="180" ry="120"/>
+      <!-- Left Plants -->
+      <path class="r" id="r-plant-l" data-label="Left Plants" fill="#1A5C1A" fill-opacity="0" d="M0,430 Q50,400 95,420 Q140,440 180,470 Q200,520 190,600 Q170,680 120,750 Q70,780 20,800 Q5,760 0,700 Z"/>
+      <ellipse class="r" id="r-plant-l2" data-label="Left Plants (lower)" fill="#1A5C1A" fill-opacity="0" cx="95" cy="820" rx="100" ry="60"/>
       
-      <path class="r" id="r-grass" data-label="Grass" fill="#3CB371" d="M0,860 Q450,810 896,820 Q1350,810 1792,860 L1792,1024 L0,1024Z"/>
+      <!-- Right Plants -->
+      <path class="r" id="r-plant-r" data-label="Right Plants" fill="#1A5C1A" fill-opacity="0" d="M770,410 Q820,390 890,400 Q950,420 1000,460 Q1024,500 1024,580 L1024,850 Q970,830 900,810 Q830,790 800,720 Q780,640 770,560 Z"/>
+      <ellipse class="r" id="r-plant-r2" data-label="Right Plants (lower)" fill="#1A5C1A" fill-opacity="0" cx="910" cy="860" rx="90" ry="55"/>
       
-      <circle class="r" id="r-berry1" data-label="Red Berries" fill="#CC2222" cx="115" cy="530" r="28"/>
-      <circle class="r" id="r-berry2" data-label="Red Berries" fill="#CC2222" cx="160" cy="490" r="22"/>
-      <circle class="r" id="r-berry3" data-label="Red Berries" fill="#CC2222" cx="200" cy="510" r="24"/>
+      <!-- Red Berries (left side) -->
+      <circle class="r" id="r-berry1" data-label="Red Berry" fill="#CC2222" fill-opacity="0" cx="18" cy="470" r="14"/>
+      <circle class="r" id="r-berry2" data-label="Red Berry" fill="#CC2222" fill-opacity="0" cx="50" cy="450" r="13"/>
+      <circle class="r" id="r-berry3" data-label="Red Berry" fill="#CC2222" fill-opacity="0" cx="75" cy="465" r="12"/>
+      <circle class="r" id="r-berry4" data-label="Red Berry" fill="#CC2222" fill-opacity="0" cx="100" cy="480" r="14"/>
+      <circle class="r" id="r-berry5" data-label="Red Berry" fill="#CC2222" fill-opacity="0" cx="125" cy="475" r="12"/>
+      <circle class="r" id="r-berry6" data-label="Red Berry" fill="#CC2222" fill-opacity="0" cx="145" cy="490" r="13"/>
       
-      <circle class="r" id="r-fl1" data-label="White Flower" fill="#FFFFFF" cx="400" cy="862" r="22"/>
-      <circle class="r" id="r-fl2" data-label="White Flower" fill="#FFFFFF" cx="560" cy="875" r="18"/>
-      <circle class="r" id="r-fl3" data-label="Yellow Flower" fill="#FFE600" cx="688" cy="868" r="18"/>
-      <circle class="r" id="r-fl4" data-label="White Flower" fill="#FFFFFF" cx="1115" cy="872" r="18"/>
-      <circle class="r" id="r-fl5" data-label="Purple Flower" fill="#DDA0DD" cx="1560" cy="644" r="30"/>
-      <circle class="r" id="r-fl6" data-label="Purple Flower" fill="#DDA0DD" cx="1626" cy="612" r="24"/>
-      <circle class="r" id="r-fl7" data-label="White Flower" fill="#FFFFFF" cx="1528" cy="706" r="22"/>
+      <!-- Grass Flowers (4 white/yellow) -->
+      <circle class="r" id="r-fl1" data-label="Grass Flower" fill="#FFFFFF" fill-opacity="0" cx="123" cy="913" r="13"/>
+      <circle class="r" id="r-fl2" data-label="Grass Flower" fill="#FFFFFF" fill-opacity="0" cx="262" cy="877" r="12"/>
+      <circle class="r" id="r-fl3" data-label="Grass Flower" fill="#FFE600" fill-opacity="0" cx="533" cy="908" r="13"/>
+      <circle class="r" id="r-fl4" data-label="Grass Flower" fill="#FFFFFF" fill-opacity="0" cx="772" cy="892" r="12"/>
       
-      <rect class="r" id="r-bucket" data-label="Paint Bucket" fill="#C0C0C0" x="1500" y="790" width="140" height="130" rx="14"/>
+      <!-- Purple Flowers (right side) -->
+      <circle class="r" id="r-fl5" data-label="Purple Flower" fill="#DDA0DD" fill-opacity="0" cx="850" cy="570" r="22"/>
+      <circle class="r" id="r-fl6" data-label="Purple Flower" fill="#DDA0DD" fill-opacity="0" cx="920" cy="620" r="26"/>
+      <circle class="r" id="r-fl7" data-label="Purple Flower" fill="#DDA0DD" fill-opacity="0" cx="880" cy="680" r="20"/>
+      <circle class="r" id="r-fl8" data-label="Purple Flower" fill="#DDA0DD" fill-opacity="0" cx="940" cy="720" r="18"/>
       
-      <ellipse class="r" id="r-leg-l" data-label="Legs" fill="#8B4513" cx="855" cy="950" rx="28" ry="52"/>
-      <ellipse class="r" id="r-leg-r" data-label="Legs" fill="#8B4513" cx="910" cy="950" rx="28" ry="52"/>
+      <!-- Paint Bucket -->
+      <rect class="r" id="r-bucket" data-label="Paint Bucket" fill="#C0C0C0" fill-opacity="0" x="760" y="690" width="120" height="180" rx="12"/>
+      <path class="r" id="r-bucket-handle" data-label="Paint Bucket Handle" fill="#999999" fill-opacity="0" d="M780,690 Q820,660 860,690 L860,705 Q820,680 780,705 Z"/>
       
-      <path class="r" id="r-dress" data-label="Dress" fill="#6B9FBE" d="M835,660 Q818,760 808,880 Q850,900 890,898 Q932,898 958,878 Q945,760 928,660Z"/>
-      <rect class="r" id="r-strap" data-label="Dress Straps" fill="#6B9FBE" x="843" y="600" width="24" height="62" rx="10"/>
-      <rect class="r" id="r-strap2" data-label="Dress Straps" fill="#6B9FBE" x="906" y="600" width="24" height="62" rx="10"/>
+      <!-- Girl: Legs -->
+      <ellipse class="r" id="r-leg-l" data-label="Left Leg" fill="#8B4513" fill-opacity="0" cx="495" cy="850" rx="20" ry="65"/>
+      <ellipse class="r" id="r-leg-r" data-label="Right Leg" fill="#8B4513" fill-opacity="0" cx="540" cy="850" rx="20" ry="65"/>
       
-      <path class="r" id="r-arm-r" data-label="Right Arm" fill="#8B4513" d="M955,670 Q990,700 1010,760 Q998,778 988,774 Q970,718 940,682Z"/>
-      <ellipse class="r" id="r-hand-r" data-label="Right Hand" fill="#8B4513" cx="1005" cy="774" rx="22" ry="28"/>
+      <!-- Girl: Dress -->
+      <path class="r" id="r-dress" data-label="Dress" fill="#FF69B4" fill-opacity="0" d="M455,560 Q450,640 445,720 Q460,770 490,785 Q520,790 545,785 Q575,770 580,720 Q575,640 570,560 Z"/>
+      <rect class="r" id="r-strap-l" data-label="Left Dress Strap" fill="#FF69B4" fill-opacity="0" x="465" y="520" width="15" height="45" rx="7"/>
+      <rect class="r" id="r-strap-r" data-label="Right Dress Strap" fill="#FF69B4" fill-opacity="0" x="545" y="520" width="15" height="45" rx="7"/>
       
-      <path class="r" id="r-arm-l" data-label="Left Arm" fill="#8B4513" d="M838,650 Q780,608 735,554 Q724,534 732,518 Q786,568 844,622Z"/>
-      <ellipse class="r" id="r-hand-l" data-label="Left Hand" fill="#8B4513" cx="728" cy="516" rx="24" ry="32"/>
+      <!-- Girl: Arms & Hands -->
+      <path class="r" id="r-arm-l" data-label="Left Arm" fill="#8B4513" fill-opacity="0" d="M460,545 Q420,520 380,485 Q365,470 360,450 Q355,440 358,430 Q395,465 440,510 Z"/>
+      <ellipse class="r" id="r-hand-l" data-label="Left Hand" fill="#8B4513" fill-opacity="0" cx="355" cy="425" rx="18" ry="22"/>
       
-      <rect class="r" id="r-neck" data-label="Neck" fill="#8B4513" x="862" y="588" width="40" height="58" rx="14"/>
+      <path class="r" id="r-arm-r" data-label="Right Arm" fill="#8B4513" fill-opacity="0" d="M565,550 Q595,570 630,600 Q645,615 650,635 Q655,645 650,655 Q615,625 575,585 Z"/>
+      <ellipse class="r" id="r-hand-r" data-label="Right Hand" fill="#8B4513" fill-opacity="0" cx="655" cy="660" rx="18" ry="24"/>
       
-      <ellipse class="r" id="r-ear-l" data-label="Left Ear" fill="#8B4513" cx="808" cy="530" rx="22" ry="28"/>
-      <ellipse class="r" id="r-ear-r" data-label="Right Ear" fill="#8B4513" cx="992" cy="522" rx="22" ry="28"/>
+      <!-- Girl: Neck -->
+      <rect class="r" id="r-neck" data-label="Neck" fill="#8B4513" fill-opacity="0" x="490" y="470" width="45" height="55" rx="20"/>
       
-      <ellipse class="r" id="r-face" data-label="Face" fill="#8B4513" cx="898" cy="490" rx="94" ry="115"/>
+      <!-- Girl: Face -->
+      <ellipse class="r" id="r-face" data-label="Face" fill="#8B4513" fill-opacity="0" cx="510" cy="445" rx="115" ry="110"/>
       
-      <ellipse class="r" id="r-cheek-l" data-label="Left Cheek" fill="#FF9999" cx="828" cy="554" rx="28" ry="17"/>
-      <ellipse class="r" id="r-cheek-r" data-label="Right Cheek" fill="#FF9999" cx="968" cy="548" rx="28" ry="17"/>
+      <!-- Girl: Ears -->
+      <ellipse class="r" id="r-ear-l" data-label="Left Ear" fill="#8B4513" fill-opacity="0" cx="405" cy="420" rx="18" ry="23"/>
+      <ellipse class="r" id="r-ear-r" data-label="Right Ear" fill="#8B4513" fill-opacity="0" cx="608" cy="418" rx="19" ry="24"/>
       
-      <ellipse class="r" id="r-hair1" data-label="Hair" fill="#2A0A00" cx="884" cy="330" rx="130" ry="100"/>
-      <ellipse class="r" id="r-hair2" data-label="Hair" fill="#2A0A00" cx="804" cy="380" rx="62" ry="72"/>
-      <ellipse class="r" id="r-hair3" data-label="Hair" fill="#2A0A00" cx="980" cy="366" rx="62" ry="66"/>
-      <ellipse class="r" id="r-hair4" data-label="Hair" fill="#2A0A00" cx="884" cy="268" rx="100" ry="62"/>
+      <!-- Girl: Eyes -->
+      <ellipse class="r" id="r-eye-l-white" data-label="Left Eye White" fill="#FFFFFF" fill-opacity="0" cx="467" cy="401" rx="28" ry="26"/>
+      <circle class="r" id="r-pupil-l" data-label="Left Pupil" fill="#111111" fill-opacity="0" cx="467" cy="401" r="12"/>
       
-      <ellipse class="r" id="r-bow" data-label="Hair Bow" fill="#1A40CC" cx="1012" cy="310" rx="40" ry="25"/>
+      <ellipse class="r" id="r-eye-r-white" data-label="Right Eye White" fill="#FFFFFF" fill-opacity="0" cx="554" cy="399" rx="29" ry="27"/>
+      <circle class="r" id="r-pupil-r" data-label="Right Pupil" fill="#111111" fill-opacity="0" cx="554" cy="399" r="12"/>
       
-      <ellipse class="r" id="r-eye-l" data-label="Left Eye" fill="#222222" cx="856" cy="496" rx="32" ry="38"/>
-      <ellipse class="r" id="r-eyew-l" data-label="Eye White" fill="#FFFFFF" cx="854" cy="494" rx="22" ry="28"/>
-      <circle  class="r" id="r-pupil-l" data-label="Left Pupil" fill="#111111" cx="856" cy="498" r="13"/>
+      <!-- Girl: Cheeks -->
+      <ellipse class="r" id="r-cheek-l" data-label="Left Cheek" fill="#FF9999" fill-opacity="0" cx="430" cy="465" rx="20" ry="15"/>
+      <ellipse class="r" id="r-cheek-r" data-label="Right Cheek" fill="#FF9999" fill-opacity="0" cx="590" cy="463" rx="20" ry="15"/>
       
-      <ellipse class="r" id="r-eye-r" data-label="Right Eye" fill="#222222" cx="938" cy="490" rx="32" ry="38"/>
-      <ellipse class="r" id="r-eyew-r" data-label="Eye White" fill="#FFFFFF" cx="936" cy="488" rx="22" ry="28"/>
-      <circle  class="r" id="r-pupil-r" data-label="Right Pupil" fill="#111111" cx="938" cy="492" r="13"/>
+      <!-- Girl: Hair (afro puffs) -->
+      <ellipse class="r" id="r-hair-main" data-label="Hair (Main)" fill="#2A0A00" fill-opacity="0" cx="510" cy="310" rx="135" ry="95"/>
+      <ellipse class="r" id="r-hair-l" data-label="Hair (Left Puff)" fill="#2A0A00" fill-opacity="0" cx="420" cy="350" rx="50" ry="60"/>
+      <ellipse class="r" id="r-hair-r" data-label="Hair (Right Puff)" fill="#2A0A00" fill-opacity="0" cx="600" cy="345" rx="50" ry="55"/>
+      <ellipse class="r" id="r-hair-top" data-label="Hair (Top)" fill="#2A0A00" fill-opacity="0" cx="510" cy="250" rx="85" ry="50"/>
       
-      <path class="r" id="r-brush" data-label="Paintbrush Handle" fill="#8B6914" d="M722,512 Q729,498 746,505 L848,658 Q840,670 826,664Z"/>
-      <path class="r" id="r-brush-tip" data-label="Brush Tip" fill="#CC8844" d="M690,432 Q714,402 744,412 Q736,456 706,466Z"/>
-      <circle class="r" id="r-sparkle" data-label="Magic Sparkle" fill="#FFE600" cx="700" cy="432" r="38"/>
+      <!-- Girl: Hair Bow -->
+      <ellipse class="r" id="r-bow" data-label="Hair Bow" fill="#1A40CC" fill-opacity="0" cx="595" cy="295" rx="42" ry="35"/>
+      
+      <!-- Paintbrush -->
+      <path class="r" id="r-brush-handle" data-label="Paintbrush Handle" fill="#8B4513" fill-opacity="0" d="M350,420 Q355,410 365,415 L450,555 Q445,565 435,560 Z"/>
+      <rect class="r" id="r-brush-ferrule" data-label="Brush Ferrule (Metal)" fill="#C0C0C0" fill-opacity="0" x="365" y="395" width="20" height="30" rx="3"/>
+      <path class="r" id="r-brush-tip" data-label="Brush Tip" fill="#FF6B6B" fill-opacity="0" d="M360,365 Q370,350 380,355 Q385,370 380,385 Q375,395 370,390 Q365,380 360,375 Z"/>
+      
+      <!-- Magic Sparkle -->
+      <circle class="r" id="r-sparkle" data-label="Magic Sparkle ✨" fill="#FFE600" fill-opacity="0" cx="358" cy="358" r="20"/>
+      <path class="r" id="r-sparkle-rays" data-label="Sparkle Rays" fill="#FFE600" fill-opacity="0" d="M358,338 L358,378 M338,358 L378,358 M345,345 L371,371 M371,345 L345,371"/>
     </svg>
 
     <p class="cghi">💡 Hover = yellow glow · Click to fill!</p>
