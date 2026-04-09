@@ -41,15 +41,29 @@ An interactive educational web application for kids featuring catchy songs, fun 
 - ✅ Animated track dividers
 - ✅ Back navigation
 
-### 🎨 Coloring Game
-- ✅ Interactive SVG-based coloring interface
-- ✅ Color palette with 20+ colors
-- ✅ Paint and erase tools
-- ✅ Rainbow Painter character template
-- ✅ Hover labels showing region names
-- ✅ Save artwork functionality (downloads as SVG)
-- ✅ Clear all button
-- ✅ Responsive design
+### 🎨 Coloring Game (Rainbow Painter)
+- ✅ Interactive SVG-based coloring interface with **60+ precisely mapped clickable regions**
+- ✅ Color palette with **20+ vibrant colors**
+- ✅ Paint and erase tools with visual toggle
+- ✅ **Fully mapped Rainbow Painter character** with detailed sections:
+  - 🌈 **6 separate rainbow bands** (Red, Orange, Yellow, Green, Blue, Violet)
+  - ☁️ **Clouds** (Left Cloud with 3 puffs, Right Cloud with 3 puffs)
+  - 🌿 **Nature elements** (Grass, Left/Right Plants, Red Berries ×6, Flowers ×8)
+  - 🪣 **Paint Bucket** with handle
+  - 👧 **The Girl** with 30+ body parts:
+    - Face, Ears, Eyes (whites & pupils), Cheeks, Neck
+    - Hair (4 sections: main afro, left/right puffs, top)
+    - Hair Bow accessory
+    - Dress, Left/Right Straps
+    - Left/Right Arms, Left/Right Hands
+    - Left/Right Legs
+  - 🖌️ **Paintbrush** (Handle, Ferrule, Brush Tip, Magic Sparkle ✨)
+- ✅ **Hover tooltip system** - Shows precise region name when hovering
+- ✅ **Yellow glow effect** on hover for visual feedback
+- ✅ Save artwork functionality (downloads as SVG file)
+- ✅ Clear all button to reset entire painting
+- ✅ Responsive design with 1024×1024 viewBox
+- 📄 See [COLORING_REGIONS.md](./COLORING_REGIONS.md) for complete region mapping documentation
 
 ## 📋 Functional Entry URIs
 
@@ -90,11 +104,26 @@ An interactive educational web application for kids featuring catchy songs, fun 
    - Click "▶ Play Now" on Coloring Game card to start coloring
 
 ### Coloring Game Instructions
-1. **Select a Color**: Click any color swatch in the left sidebar
-2. **Paint**: Click on any region of the Rainbow Painter to fill with selected color
-3. **Erase**: Click eraser tool (⬜), then click colored regions to remove color
-4. **Save**: Click "💾 Save Art" to download your masterpiece as SVG
-5. **Clear**: Click "🗑 Clear All" to start fresh
+1. **Navigate**: From homepage click "Coloring Game" card, or from Train page
+2. **Select a Color**: Click any of the 20+ color swatches in the left sidebar
+3. **Hover to Explore**: Move mouse over the painting to see region names in tooltip
+4. **Paint Regions**: Click on any of the 60+ clickable regions to fill with selected color
+   - **Rainbow bands** (6 separate arcs)
+   - **Clouds** (left and right with multiple puffs)
+   - **Nature elements** (grass, plants, berries, flowers)
+   - **Paint bucket** and handle
+   - **The Girl** (face, hair, eyes, dress, arms, legs - 30+ parts!)
+   - **Paintbrush** (handle, ferrule, tip, sparkle)
+5. **Erase**: Click eraser tool (⬜), then click colored regions to remove color
+6. **Save Your Art**: Click "💾 Save Art" to download your masterpiece as SVG file
+7. **Start Over**: Click "🗑 Clear All" to reset all regions to blank
+8. **Go Back**: Use "← Back" button to return to Train page
+
+**Pro Tips:**
+- Hover over any region to see its name before clicking
+- The painting template remains visible underneath (55% opacity)
+- Try coloring the rainbow in order: Red → Orange → Yellow → Green → Blue → Violet
+- Don't forget the details: cheeks, bow, sparkle, berries!
 
 ### Navigation
 - **Back Button**: Return to previous page (← Back)
@@ -187,9 +216,10 @@ webapp/
 │   ├── styles.css          # Main stylesheet (neon theme)
 │   ├── app.js              # JavaScript functionality
 │   ├── logo.svg            # Navigation logo
-│   ├── hero-logo.svg       # Homepage hero logo
-│   ├── train-banner.jpg    # Train page banner
-│   ├── coloring-bw.jpg     # Coloring template
+│   ├── hero-logo-real.png  # Homepage hero logo (real image)
+│   ├── train-banner-real.png # Train page banner (real image)
+│   ├── coloring-rainbow-painter-bw.jpg # Coloring template (B&W, 893KB)
+│   ├── coloring-rainbow-painter-color.jpg # Coloring reference (Color, 112KB)
 │   └── board-audio.mp3     # "Board the Train" audio
 ├── dist/                   # Build output (generated)
 ├── .git/                   # Git repository
@@ -256,9 +286,10 @@ webapp/
 - ⏳ Cloudflare Pages deployment pending
 
 ### Known Issues
+- Real images now integrated for hero and train banner
 - Audio file is placeholder (empty)
-- Images are SVG placeholders (originals were base64)
 - No actual song/video content yet
+- Coloring page mapping completed with 60+ regions
 
 ## 📧 Support & Contact
 
@@ -266,8 +297,8 @@ For questions, issues, or contributions, please contact the development team.
 
 ---
 
-**Last Updated**: 2026-04-08  
-**Version**: 1.0.0  
+**Last Updated**: 2026-04-09  
+**Version**: 1.1.0  
 **License**: Educational Use
 
 **Made with 🎵 for Kids Everywhere**
