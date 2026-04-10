@@ -295,12 +295,35 @@
     gap: 8px; padding: 8px 0 12px; position: relative; z-index: 10;
   }
   .footer-logo { width: 120px; height: auto; opacity: 0.5; }
+
+  /* ── Music toggle button (top-right, fixed) ── */
+  #mq-music-btn {
+    position: fixed; top: 10px; right: 12px; z-index: 1000;
+    width: 38px; height: 38px; border-radius: 50%;
+    background: rgba(0,0,0,0.55); border: 2px solid rgba(255,215,0,0.45);
+    color: #FFD700; font-size: 16px; line-height: 1;
+    cursor: pointer; backdrop-filter: blur(8px);
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s, border-color 0.2s, transform 0.15s;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  }
+  #mq-music-btn:hover {
+    background: rgba(255,215,0,0.18); border-color: #FFD700;
+    transform: scale(1.1);
+  }
+  #mq-music-btn.muted { border-color: rgba(255,255,255,0.25); color: rgba(255,255,255,0.4); }
 </style>
 </head>
 <body>
 
 <!-- Back button always visible -->
 <button id="mq-back-btn" onclick="mqGoBack()">← Back</button>
+
+<!-- Music toggle (top-right) -->
+<button id="mq-music-btn" onclick="mqToggleMusic()" title="Toggle music">🎵</button>
+
+<!-- Background music -->
+<audio id="mq-audio" src="/static/math-quest-music.mp3" loop preload="auto"></audio>
 
 <!-- ═══════════════════ TITLE SCREEN ═══════════════════ -->
 <div id="screen-title" class="mq-screen active">
@@ -713,6 +736,8 @@ function renderVictory() {
 
 // ── Back button ──
 function mqGoBack() {
+  // Stop music before navigating away
+  if (typeof window.mqPauseMusic === 'function') window.mqPauseMusic();
   // If embedded inside Groove Train SPA as an iframe, call parent showPage
   try {
     if (window.parent && window.parent !== window && typeof window.parent.showPage === 'function') {
@@ -761,6 +786,51 @@ function mqGoBack() {
 })();
 
 console.log('🎵 Math Quest loaded!');
+
+// ── Background music ──
+(function initMusic() {
+  const audio = document.getElementById('mq-audio');
+  const btn   = document.getElementById('mq-music-btn');
+  if (!audio || !btn) return;
+
+  audio.volume = 0.22;   // quiet background level
+  let started  = false;
+  let muted    = false;
+
+  function startMusic() {
+    if (started) return;
+    started = true;
+    audio.play().catch(() => {
+      // Autoplay blocked – will retry on next user gesture
+      started = false;
+    });
+  }
+
+  // Try to start on first user interaction anywhere on the page
+  ['click', 'keydown', 'touchstart'].forEach(evt => {
+    document.addEventListener(evt, startMusic, { once: false, passive: true });
+  });
+
+  window.mqToggleMusic = function() {
+    if (!started) {
+      // First press: unmute and start
+      startMusic();
+      muted = false;
+    } else {
+      muted = !muted;
+      audio.muted = muted;
+    }
+    btn.textContent = muted ? '🔇' : '🎵';
+    btn.classList.toggle('muted', muted);
+  };
+
+  // When leaving the page (back button), pause gracefully
+  window.mqPauseMusic = function() {
+    audio.pause();
+    audio.currentTime = 0;
+    started = false;
+  };
+})();
 </script>
 </body>
 </html>
