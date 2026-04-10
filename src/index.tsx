@@ -67,6 +67,12 @@ app.get('/', (c) => {
       <button onclick="showPage('coloring')" style="margin-top:12px;padding:10px 24px;background:transparent;border:2px solid var(--neon-yellow);color:var(--neon-yellow);font-family:'Orbitron',sans-serif;font-size:0.72rem;letter-spacing:2px;text-transform:uppercase;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);">▶ Rainbow Painter</button>
       <button onclick="showPage('coloring-train')" style="margin-top:8px;padding:10px 24px;background:transparent;border:2px solid var(--neon-pink);color:var(--neon-pink);font-family:'Orbitron',sans-serif;font-size:0.72rem;letter-spacing:2px;text-transform:uppercase;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);">▶ Train Boy</button>
     </div>
+    <div class="card" style="grid-column:span 1;">
+      <span class="card-icon" style="animation-delay:.8s">🔢</span>
+      <h3>Math Quest</h3>
+      <p>Solve addition, subtraction &amp; multiplication puzzles across 5 musical levels — earn stars!</p>
+      <button onclick="showPage('math-quest')" style="margin-top:12px;padding:10px 24px;background:transparent;border:2px solid #00c8ff;color:#00c8ff;font-family:'Orbitron',sans-serif;font-size:0.72rem;letter-spacing:2px;text-transform:uppercase;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);">▶ Play Math Quest</button>
+    </div>
     <div class="card">
       <span class="card-icon" style="animation-delay:.8s">📺</span>
       <h3>Music Videos</h3>
@@ -576,6 +582,22 @@ app.get('/', (c) => {
   </div>
 </div>
 
+</div>
+
+<!-- ═══ MATH QUEST PAGE ═══ -->
+<div id="page-math-quest" style="display:none; min-height:100vh; background:#0a1628;">
+  <div id="mq-nav" style="position:fixed;top:0;left:0;width:100%;z-index:999;background:rgba(0,0,0,0.5);padding:10px 16px;display:flex;align-items:center;backdrop-filter:blur(8px);border-bottom:1px solid rgba(255,215,0,0.15);">
+    <button class="back-btn" onclick="showPage('train')" style="font-family:'Orbitron',sans-serif;font-size:0.75rem;">← Back</button>
+    <span style="margin-left:16px;color:#FFD700;font-family:'Orbitron',sans-serif;font-size:0.8rem;letter-spacing:2px;">🎵 MATH QUEST</span>
+  </div>
+  <div style="padding-top:48px;">
+    <iframe id="math-quest-frame"
+      src="/static/math-quest.html"
+      style="width:100%;height:calc(100vh - 48px);border:none;display:block;"
+      title="Math Quest Game"
+      allow="autoplay"
+    ></iframe>
+  </div>
 </div>
 
 <script src="/static/app.js"></script>

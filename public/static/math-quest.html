@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Math Quest – Groove Train Time</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="/static/mq-assets.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Fredoka', 'Nunito', sans-serif; background: #0a1628; min-height: 100vh; }
+
+  @keyframes floatUp {
+    0%   { transform: translateY(0) rotate(0deg); opacity: 0.5; }
+    100% { transform: translateY(-400px) rotate(360deg); opacity: 0; }
+  }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50%       { transform: scale(1.05); }
+  }
+  @keyframes glow {
+    0%, 100% { box-shadow: 0 0 20px rgba(255,215,0,0.4); }
+    50%       { box-shadow: 0 0 40px rgba(255,215,0,0.8); }
+  }
+  @keyframes slideIn {
+    0%   { transform: translateY(30px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+  }
+  @keyframes starBurst {
+    0%   { opacity: 1; transform: rotate(var(--r,0deg)) translateY(0); }
+    100% { opacity: 0; transform: rotate(var(--r,0deg)) translateY(-80px); }
+  }
+  @keyframes bobble {
+    0%, 100% { transform: translateY(0); }
+    50%       { transform: translateY(-8px); }
+  }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25%       { transform: translateX(-8px); }
+    75%       { transform: translateX(8px); }
+  }
+  @keyframes titleGlow {
+    0%, 100% { text-shadow: 0 0 20px rgba(255,215,0,0.6), 0 0 40px rgba(255,215,0,0.3); }
+    50%       { text-shadow: 0 0 30px rgba(255,215,0,0.9), 0 0 60px rgba(255,215,0,0.5); }
+  }
+  @keyframes bounceIn {
+    0%   { transform: scale(0.3); opacity: 0; }
+    50%  { transform: scale(1.1); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  @keyframes popIn {
+    0%   { transform: scale(0.8); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  @keyframes correctPulse {
+    0%   { box-shadow: 0 0 0 0 rgba(76,175,80,0.6); }
+    100% { box-shadow: 0 0 0 20px rgba(76,175,80,0); }
+  }
+
+  /* ── Back button (top-left) – hidden when embedded in SPA iframe ── */
+  #mq-back-btn {
+    display: none; /* parent nav overlay handles back; shown only in standalone mode */
+    position: fixed; top: 12px; left: 12px; z-index: 999;
+    background: rgba(0,0,0,0.5); border: 2px solid rgba(255,215,0,0.5);
+    color: #FFD700; padding: 8px 16px; border-radius: 24px;
+    font-family: 'Fredoka', sans-serif; font-size: 1rem; font-weight: 600;
+    cursor: pointer; backdrop-filter: blur(8px);
+    transition: background 0.2s, border-color 0.2s;
+  }
+  #mq-back-btn:hover { background: rgba(255,215,0,0.15); border-color: #FFD700; }
+
+  /* ── Note particle ── */
+  .note-particle {
+    position: absolute; bottom: 0; font-size: 20px;
+    animation: floatUp 3s ease-out infinite; opacity: 0.4; pointer-events: none;
+  }
+
+  /* ── Star burst ── */
+  .star-dot {
+    position: absolute; left: 50%; top: 50%;
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #FFD700; pointer-events: none;
+    animation: starBurst 0.6s ease-out forwards;
+    opacity: 0;
+  }
+
+  /* ── Screens ── */
+  .mq-screen { display: none; }
+  .mq-screen.active { display: flex; flex-direction: column; min-height: 100vh; }
+
+  /* ─── TITLE SCREEN ─── */
+  #screen-title {
+    align-items: center; justify-content: flex-start;
+    background: linear-gradient(180deg, #0a1628 0%, #1a237e 40%, #0d47a1 100%);
+    position: relative; overflow: hidden; padding: 60px 20px 20px;
+  }
+  #screen-title .city-bg {
+    position: absolute; bottom: 0; left: 0; width: 100%; height: 60%;
+    object-fit: cover; opacity: 0.25; pointer-events: none;
+  }
+  #screen-title .title-content {
+    position: relative; z-index: 10; text-align: center; width: 100%; max-width: 420px;
+    margin: 0 auto;
+  }
+  .mq-logo {
+    width: clamp(180px, 50vw, 300px); height: auto; margin-bottom: 8px;
+    filter: drop-shadow(0 0 24px rgba(66,165,245,0.5)) drop-shadow(0 0 48px rgba(255,215,0,0.3));
+    animation: bobble 3s ease-in-out infinite;
+  }
+  .mq-title {
+    font-size: clamp(2rem, 6vw, 3.2rem); font-weight: 800; color: #FFD700;
+    margin: 0 0 4px; letter-spacing: 3px;
+    animation: titleGlow 3s ease-in-out infinite;
+  }
+  .mq-subtitle {
+    color: #90CAF9; font-size: clamp(0.85rem, 2.5vw, 1.1rem); margin: 0 0 20px;
+    font-weight: 600; letter-spacing: 1px; opacity: 0.8;
+  }
+  .mq-chars {
+    display: flex; gap: 16px; justify-content: center; margin-bottom: 24px;
+    animation: slideIn 0.8s ease-out;
+  }
+  .mq-char-img {
+    width: 100px; height: auto; border-radius: 16px;
+    border: 3px solid #FFD700; background: rgba(0,0,0,0.3);
+    animation: bobble 2.5s ease-in-out infinite;
+  }
+  .mq-char-img.hero {
+    width: 84px; border-color: #42A5F5;
+    animation-delay: 0.3s;
+  }
+  .mq-age-box {
+    background: rgba(255,255,255,0.08); border-radius: 16px; padding: 16px 24px;
+    margin-bottom: 20px; backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,215,0,0.2);
+  }
+  .mq-age-label {
+    color: #90CAF9; font-size: 14px; font-weight: 600; display: block; margin-bottom: 8px;
+  }
+  .mq-age-buttons { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+  .mq-age-btn {
+    width: 44px; height: 44px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.2);
+    background: rgba(255,255,255,0.05); color: #90CAF9;
+    font-size: 18px; font-weight: 700; cursor: pointer; transition: all 0.2s;
+    font-family: 'Fredoka', sans-serif;
+  }
+  .mq-age-btn.selected {
+    border-color: #FFD700; background: rgba(255,215,0,0.2); color: #FFD700;
+  }
+  .mq-start-btn {
+    padding: 16px 48px; font-size: clamp(1.1rem, 4vw, 1.4rem); font-weight: 700;
+    background: linear-gradient(135deg, #FFD700, #FFA000);
+    color: #0a1628; border: none; border-radius: 50px; cursor: pointer;
+    animation: glow 2s ease-in-out infinite, pulse 2s ease-in-out infinite;
+    font-family: 'Fredoka', sans-serif; letter-spacing: 1px;
+    box-shadow: 0 4px 20px rgba(255,215,0,0.4);
+  }
+
+  /* ─── LEVEL UP SCREEN ─── */
+  #screen-levelup {
+    align-items: center; justify-content: center;
+    padding: 20px; text-align: center;
+  }
+  .levelup-box { animation: bounceIn 0.6s ease-out; }
+  .levelup-emoji { font-size: 64px; margin-bottom: 16px; }
+  .levelup-h2 { color: #FFD700; font-size: 2rem; margin: 0 0 8px; }
+  .levelup-cleared { color: #90CAF9; font-size: 1.1rem; margin: 0 0 8px; }
+  .levelup-score { color: #fff; font-size: 1.3rem; margin: 0 0 24px; }
+  .levelup-char { width: 120px; height: auto; border-radius: 16px; border: 3px solid #FFD700; margin-bottom: 24px; }
+  .levelup-next { color: #E3F2FD; font-size: 1rem; margin: 0 0 20px; }
+  .levelup-btn {
+    padding: 14px 40px; font-size: 1.2rem; font-weight: 700;
+    background: linear-gradient(135deg, #FFD700, #FFA000);
+    color: #0a1628; border: none; border-radius: 50px; cursor: pointer;
+    font-family: 'Fredoka', sans-serif;
+    box-shadow: 0 4px 20px rgba(255,215,0,0.4);
+  }
+
+  /* ─── VICTORY SCREEN ─── */
+  #screen-victory {
+    align-items: center; justify-content: center;
+    background: linear-gradient(180deg, #0a1628 0%, #1a237e 40%, #0d47a1 100%);
+    position: relative; overflow: hidden; padding: 20px; text-align: center;
+  }
+  .victory-float {
+    position: absolute; font-size: 24px; pointer-events: none;
+    animation: floatUp 3s ease-out infinite;
+  }
+  .victory-inner { animation: bounceIn 0.8s ease-out; position: relative; z-index: 10; }
+  .victory-trophy { font-size: 72px; margin-bottom: 8px; }
+  .victory-h2 { color: #FFD700; font-size: 2.4rem; margin: 0 0 8px; }
+  .victory-stars { font-size: 40px; margin: 8px 0; }
+  .victory-score { color: #E3F2FD; font-size: 1.2rem; margin: 0 0 4px; }
+  .victory-correct { color: #90CAF9; font-size: 1rem; margin: 0 0 24px; }
+  .victory-chars { display: flex; gap: 12px; justify-content: center; margin-bottom: 24px; }
+  .victory-char1 { width: 90px; border-radius: 12px; border: 2px solid #FFD700; }
+  .victory-char2 { width: 70px; border-radius: 12px; border: 2px solid #42A5F5; }
+  .victory-btn {
+    padding: 14px 40px; font-size: 1.2rem; font-weight: 700;
+    background: linear-gradient(135deg, #FFD700, #FFA000);
+    color: #0a1628; border: none; border-radius: 50px; cursor: pointer;
+    font-family: 'Fredoka', sans-serif;
+    box-shadow: 0 4px 20px rgba(255,215,0,0.4);
+  }
+
+  /* ─── GAME SCREEN ─── */
+  #screen-game {
+    position: relative; overflow: hidden;
+  }
+  #screen-game .city-bg {
+    position: absolute; bottom: 0; left: 0; width: 100%; height: 45%;
+    object-fit: cover; opacity: 0.15; pointer-events: none;
+  }
+  .game-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px 16px; position: relative; z-index: 20;
+    background: rgba(0,0,0,0.3); backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255,215,0,0.15);
+  }
+  .game-level-info .level-num {
+    color: #FFD700; font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1px;
+  }
+  .game-level-info .level-name { color: #E3F2FD; font-size: 14px; font-weight: 600; }
+  .game-progress { text-align: center; flex: 1; }
+  .progress-track {
+    height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px;
+    margin: 0 16px; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; background: linear-gradient(90deg, #FFD700, #FFA000);
+    border-radius: 4px; transition: width 0.4s ease;
+  }
+  .progress-count { color: #90CAF9; font-size: 11px; margin-top: 2px; }
+  .game-score { text-align: right; }
+  .game-score-num { color: #FFD700; font-size: 20px; font-weight: 700; }
+  .game-streak { color: #FF9800; font-size: 11px; font-weight: 600; }
+  .game-main {
+    flex: 1; display: flex; flex-direction: column; align-items: center;
+    justify-content: center; padding: 16px 20px; position: relative; z-index: 10;
+  }
+  .star-burst-container { position: absolute; inset: 0; pointer-events: none; z-index: 50; }
+  .guide-area {
+    display: flex; align-items: flex-end; gap: 12px; margin-bottom: 20px;
+    animation: popIn 0.4s ease-out;
+  }
+  .guide-char {
+    width: 70px; height: auto; border-radius: 12px;
+    border: 2px solid rgba(255,215,0,0.4);
+  }
+  .guide-bubble {
+    background: rgba(255,255,255,0.1); backdrop-filter: blur(8px);
+    border-radius: 16px 16px 16px 4px; padding: 10px 16px;
+    border: 1px solid rgba(255,215,0,0.2); max-width: 220px;
+    font-size: 14px; font-weight: 600; color: #E3F2FD;
+  }
+  .problem-card {
+    background: rgba(0,0,0,0.4); backdrop-filter: blur(12px);
+    border-radius: 24px; padding: 28px 36px; margin-bottom: 24px;
+    border: 2px solid rgba(255,215,0,0.25);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    animation: popIn 0.4s ease-out; text-align: center;
+  }
+  .problem-card.shake { animation: shake 0.4s ease; }
+  .problem-equation {
+    font-size: clamp(2rem, 8vw, 3.2rem); font-weight: 700;
+    font-family: 'Fredoka', sans-serif;
+  }
+  .eq-num { color: #42A5F5; }
+  .eq-op  { color: #FFD700; }
+  .eq-eq  { color: rgba(255,255,255,0.5); }
+  .eq-q   { color: #FFD700; }
+  .answer-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+    width: 100%; max-width: 340px;
+  }
+  .answer-btn {
+    padding: 18px 12px; font-size: clamp(1.3rem, 5vw, 1.6rem); font-weight: 700;
+    border: 2px solid rgba(255,215,0,0.3); border-radius: 16px;
+    cursor: pointer; font-family: 'Fredoka', sans-serif;
+    background: rgba(255,255,255,0.06); color: #E3F2FD;
+    transition: all 0.2s; backdrop-filter: blur(8px);
+  }
+  .answer-btn:disabled { cursor: default; }
+  .answer-btn.correct {
+    border-color: #4CAF50; background: rgba(76,175,80,0.25); color: #4CAF50;
+    transform: scale(1.05); animation: correctPulse 0.6s ease;
+  }
+  .answer-btn.wrong {
+    border-color: #FF5252; background: rgba(255,82,82,0.25); color: #FF5252;
+  }
+  .game-footer {
+    display: flex; align-items: center; justify-content: center;
+    gap: 8px; padding: 8px 0 12px; position: relative; z-index: 10;
+  }
+  .footer-logo { width: 120px; height: auto; opacity: 0.5; }
+</style>
+</head>
+<body>
+
+<!-- Back button always visible -->
+<button id="mq-back-btn" onclick="mqGoBack()">← Back</button>
+
+<!-- ═══════════════════ TITLE SCREEN ═══════════════════ -->
+<div id="screen-title" class="mq-screen active">
+  <img id="city-bg-title" class="city-bg" src="" alt="">
+
+  <!-- Floating notes -->
+  <div class="note-particle" style="left:10%;animation-delay:0s">♪</div>
+  <div class="note-particle" style="left:22%;animation-delay:0.4s">♫</div>
+  <div class="note-particle" style="left:34%;animation-delay:0.8s">🎵</div>
+  <div class="note-particle" style="left:46%;animation-delay:1.2s">♬</div>
+  <div class="note-particle" style="left:58%;animation-delay:1.6s">🎶</div>
+  <div class="note-particle" style="left:70%;animation-delay:2.0s">♪</div>
+  <div class="note-particle" style="left:82%;animation-delay:2.4s">♫</div>
+  <div class="note-particle" style="left:94%;animation-delay:2.8s">🎵</div>
+
+  <div class="title-content">
+    <img id="mq-logo-title" class="mq-logo" src="" alt="Groove Train Time">
+    <h1 class="mq-title">MATH QUEST</h1>
+    <p class="mq-subtitle">🎵 Stay on the Right Track 🎵</p>
+
+    <div class="mq-chars">
+      <img id="mq-robot-title" class="mq-char-img" src="" alt="Nova">
+      <img id="mq-hero-title"  class="mq-char-img hero" src="" alt="Hero">
+    </div>
+
+    <div class="mq-age-box">
+      <span class="mq-age-label">How old are you?</span>
+      <div class="mq-age-buttons" id="age-buttons">
+        <button class="mq-age-btn" data-age="5" onclick="selectAge(5)">5</button>
+        <button class="mq-age-btn" data-age="6" onclick="selectAge(6)">6</button>
+        <button class="mq-age-btn selected" data-age="7" onclick="selectAge(7)">7</button>
+        <button class="mq-age-btn" data-age="8" onclick="selectAge(8)">8</button>
+        <button class="mq-age-btn" data-age="9" onclick="selectAge(9)">9</button>
+        <button class="mq-age-btn" data-age="10" onclick="selectAge(10)">10</button>
+      </div>
+    </div>
+
+    <button class="mq-start-btn" onclick="startGame()">🎮 START QUEST</button>
+  </div>
+</div>
+
+<!-- ═══════════════════ LEVEL UP SCREEN ═══════════════════ -->
+<div id="screen-levelup" class="mq-screen">
+  <div class="levelup-box">
+    <div class="levelup-emoji">🎉</div>
+    <h2 class="levelup-h2">Level Complete!</h2>
+    <p class="levelup-cleared" id="lu-cleared"></p>
+    <p class="levelup-score">Score: <span id="lu-score" style="color:#FFD700;font-weight:700"></span></p>
+    <img id="lu-char" class="levelup-char" src="" alt="">
+    <p class="levelup-next">Next up: <strong id="lu-next" style="color:#FFD700"></strong></p>
+    <button class="levelup-btn" onclick="nextLevel()">Next Level →</button>
+  </div>
+</div>
+
+<!-- ═══════════════════ VICTORY SCREEN ═══════════════════ -->
+<div id="screen-victory" class="mq-screen">
+  <div id="victory-floats"></div>
+  <div class="victory-inner">
+    <div class="victory-trophy">🏆</div>
+    <h2 class="victory-h2">Quest Complete!</h2>
+    <div class="victory-stars" id="v-stars"></div>
+    <p class="victory-score">Final Score: <strong id="v-score" style="color:#FFD700"></strong></p>
+    <p class="victory-correct" id="v-correct"></p>
+    <div class="victory-chars">
+      <img id="v-robot" class="victory-char1" src="" alt="">
+      <img id="v-hero"  class="victory-char2" src="" alt="">
+    </div>
+    <button class="victory-btn" onclick="showScreen('title')">🎮 Play Again</button>
+  </div>
+</div>
+
+<!-- ═══════════════════ GAME SCREEN ═══════════════════ -->
+<div id="screen-game" class="mq-screen">
+  <img id="city-bg-game" class="city-bg" src="" alt="">
+
+  <div class="note-particle" style="left:10%;animation-delay:0s">♪</div>
+  <div class="note-particle" style="left:30%;animation-delay:0.6s">♫</div>
+  <div class="note-particle" style="left:50%;animation-delay:1.2s">🎵</div>
+  <div class="note-particle" style="left:70%;animation-delay:1.8s">♬</div>
+  <div class="note-particle" style="left:90%;animation-delay:2.4s">🎶</div>
+
+  <!-- Header -->
+  <div class="game-header">
+    <div class="game-level-info">
+      <div class="level-num" id="g-level-num">Level 1</div>
+      <div class="level-name" id="g-level-name"></div>
+    </div>
+    <div class="game-progress">
+      <div class="progress-track">
+        <div class="progress-fill" id="g-progress-fill" style="width:0%"></div>
+      </div>
+      <div class="progress-count" id="g-progress-count">0/8</div>
+    </div>
+    <div class="game-score">
+      <div class="game-score-num" id="g-score">0</div>
+      <div class="game-streak" id="g-streak" style="display:none"></div>
+    </div>
+  </div>
+
+  <!-- Main area -->
+  <div class="game-main">
+    <div id="star-burst" class="star-burst-container" style="display:none"></div>
+
+    <!-- Character guide -->
+    <div class="guide-area">
+      <img id="g-char" class="guide-char" src="" alt="Guide">
+      <div class="guide-bubble" id="g-bubble">Solve the problem!</div>
+    </div>
+
+    <!-- Problem card -->
+    <div class="problem-card" id="problem-card">
+      <div class="problem-equation">
+        <span class="eq-num" id="eq-a"></span>
+        <span> </span>
+        <span class="eq-op"  id="eq-op"></span>
+        <span> </span>
+        <span class="eq-num" id="eq-b"></span>
+        <span> </span>
+        <span class="eq-eq">=</span>
+        <span> </span>
+        <span class="eq-q">?</span>
+      </div>
+    </div>
+
+    <!-- Answer buttons -->
+    <div class="answer-grid" id="answer-grid"></div>
+  </div>
+
+  <!-- Footer -->
+  <div class="game-footer">
+    <img id="g-footer-logo" class="footer-logo" src="" alt="Groove Train Time">
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════
+//  Math Quest – Standalone Game Logic
+// ═══════════════════════════════════════════════════
+
+// ── Asset data (base64 from original JSX) ──
+// We use small references here — images loaded from JSX constants
+// The actual base64 blobs are embedded below
+const ASSETS = {};
+
+// Load images lazily from the JSX constants that were compiled in
+// We reference them via a helper that waits for the window.MQ_IMAGES object
+// (populated by inline script below, which carries the actual base64 strings)
+
+// ── Game config ──
+const LEVELS = [
+  { name: "Rhythm Road",      op: "+",      range: [1, 10], bg: "linear-gradient(135deg, #0a1628 0%, #1a237e 50%, #0d47a1 100%)" },
+  { name: "Beat Boulevard",   op: "-",      range: [1, 15], bg: "linear-gradient(135deg, #0a1628 0%, #1b1464 50%, #0d47a1 100%)" },
+  { name: "Melody Lane",      op: "+",      range: [5, 25], bg: "linear-gradient(135deg, #0d1b2a 0%, #1a237e 50%, #01579b 100%)" },
+  { name: "Harmony Highway",  op: "×",      range: [1, 10], bg: "linear-gradient(135deg, #0a0e27 0%, #283593 50%, #0d47a1 100%)" },
+  { name: "Groove Galaxy",    op: "mixed",  range: [1, 20], bg: "linear-gradient(135deg, #030b1a 0%, #1a237e 50%, #0d47a1 100%)" },
+];
+
+const ENCOURAGEMENTS = ["Awesome! 🎵","You rock! 🎸","Groovy! 🎶","Perfect beat! 🥁","Fantastic! ⭐","Way to go! 🎤"];
+const WRONG_MSGS     = ["Almost! Try again! 💪","Not quite! Keep grooving! 🎵","Oops! You got this! 🌟"];
+
+const QUESTIONS_PER_LEVEL = 8;
+
+// ── State ──
+let state = {
+  screen: "title",
+  level: 0,
+  problem: null,
+  score: 0,
+  streak: 0,
+  questionsAnswered: 0,
+  totalCorrect: 0,
+  feedback: null,
+  age: 7,
+  feedbackTimer: null,
+};
+
+// ── Helpers ──
+function rand(min, max){ return Math.floor(Math.random() * (max - min + 1)) + min; }
+
+function generateProblem(levelIdx) {
+  const { op, range } = LEVELS[levelIdx];
+  const [min, max] = range;
+  let a, b, operator, answer;
+  const chooseOp = op === "mixed" ? ["+","-","×"][Math.floor(Math.random()*3)] : op;
+
+  if (chooseOp === "+") {
+    a = rand(min, max); b = rand(min, max); operator = "+"; answer = a + b;
+  } else if (chooseOp === "-") {
+    a = rand(min, max); b = rand(1, a); operator = "-"; answer = a - b;
+  } else {
+    a = rand(min, max); b = rand(2, 10); operator = "×"; answer = a * b;
+  }
+
+  const wrongSet = new Set();
+  while (wrongSet.size < 3) {
+    const offset = rand(-5, 5) || 1;
+    const w = answer + offset;
+    if (w !== answer && w >= 0) wrongSet.add(w);
+  }
+  const options = [...wrongSet, answer].sort(() => Math.random() - 0.5);
+  return { a, b, operator, answer, options };
+}
+
+// ── Screen management ──
+function showScreen(name) {
+  document.querySelectorAll('.mq-screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+  state.screen = name;
+}
+
+// ── Age selection ──
+function selectAge(a) {
+  state.age = a;
+  document.querySelectorAll('.mq-age-btn').forEach(btn => {
+    btn.classList.toggle('selected', parseInt(btn.dataset.age) === a);
+  });
+}
+
+// ── Start game ──
+function startGame() {
+  state.level = 0; state.score = 0; state.streak = 0;
+  state.questionsAnswered = 0; state.totalCorrect = 0;
+  state.feedback = null;
+  renderGameHeader();
+  setBubble("Let's groove through math! 🎶", null);
+  renderProblem(generateProblem(0));
+  state.problem = generateProblem(0);
+  // re-render with correct problem
+  renderProblem(state.problem);
+  showScreen('game');
+}
+
+// ── Next level ──
+function nextLevel() {
+  const nl = state.level + 1;
+  state.level = nl;
+  state.questionsAnswered = 0;
+  state.feedback = null;
+  renderGameHeader();
+  setBubble("Welcome to " + LEVELS[nl].name + "! 🚀", null);
+  state.problem = generateProblem(nl);
+  renderProblem(state.problem);
+  showScreen('game');
+}
+
+// ── Handle answer ──
+function handleAnswer(chosen) {
+  if (state.feedback) return;
+  const { problem } = state;
+  state.feedback = (chosen === problem.answer) ? 'correct' : 'wrong';
+
+  // Update answer buttons visually
+  const btns = document.querySelectorAll('.answer-btn');
+  btns.forEach(btn => {
+    btn.disabled = true;
+    const val = parseInt(btn.dataset.value);
+    if (val === problem.answer) btn.classList.add('correct');
+    else if (val === chosen)    btn.classList.add('wrong');
+  });
+
+  if (state.feedback === 'correct') {
+    const pts = 10 + state.streak * 5;
+    state.score += pts;
+    state.streak++;
+    state.totalCorrect++;
+    showBurst();
+    setBubble(ENCOURAGEMENTS[Math.floor(Math.random() * ENCOURAGEMENTS.length)], 'correct');
+  } else {
+    state.streak = 0;
+    shakeProblem();
+    setBubble(WRONG_MSGS[Math.floor(Math.random() * WRONG_MSGS.length)], 'wrong');
+  }
+
+  updateScoreDisplay();
+
+  if (state.feedbackTimer) clearTimeout(state.feedbackTimer);
+  state.feedbackTimer = setTimeout(() => {
+    const next = state.questionsAnswered + 1;
+    state.questionsAnswered = next;
+    state.feedback = null;
+
+    if (next >= QUESTIONS_PER_LEVEL) {
+      if (state.level >= LEVELS.length - 1) {
+        renderVictory();
+        showScreen('victory');
+      } else {
+        renderLevelUp();
+        showScreen('levelup');
+      }
+    } else {
+      state.problem = generateProblem(state.level);
+      renderProblem(state.problem);
+    }
+  }, 1200);
+}
+
+// ── Render helpers ──
+function renderGameHeader() {
+  const lv = LEVELS[state.level];
+  document.getElementById('g-level-num').textContent  = 'Level ' + (state.level + 1);
+  document.getElementById('g-level-name').textContent = lv.name;
+  document.getElementById('screen-game').style.background = lv.bg;
+  document.getElementById('screen-levelup').style.background = lv.bg;
+  updateScoreDisplay();
+}
+
+function updateScoreDisplay() {
+  document.getElementById('g-score').textContent = state.score;
+  const sf = document.getElementById('g-progress-fill');
+  const sc = document.getElementById('g-progress-count');
+  sf.style.width = ((state.questionsAnswered / QUESTIONS_PER_LEVEL) * 100) + '%';
+  sc.textContent = state.questionsAnswered + '/' + QUESTIONS_PER_LEVEL;
+  const streak = document.getElementById('g-streak');
+  if (state.streak > 1) {
+    streak.style.display = 'block';
+    streak.textContent = '🔥 ' + state.streak + 'x streak';
+  } else {
+    streak.style.display = 'none';
+  }
+}
+
+function renderProblem(prob) {
+  document.getElementById('eq-a').textContent  = prob.a;
+  document.getElementById('eq-op').textContent = prob.operator;
+  document.getElementById('eq-b').textContent  = prob.b;
+
+  const card = document.getElementById('problem-card');
+  card.classList.remove('shake');
+  void card.offsetWidth; // force reflow
+
+  const grid = document.getElementById('answer-grid');
+  grid.innerHTML = '';
+  prob.options.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'answer-btn';
+    btn.dataset.value = opt;
+    btn.textContent = opt;
+    btn.onclick = () => handleAnswer(opt);
+    grid.appendChild(btn);
+  });
+
+  // Update guide char
+  if (window.MQ_IMAGES) {
+    document.getElementById('g-char').src = state.level % 2 === 0
+      ? window.MQ_IMAGES.robot : window.MQ_IMAGES.hero;
+  }
+}
+
+function setBubble(msg, type) {
+  const b = document.getElementById('g-bubble');
+  b.textContent = msg;
+  b.style.color = type === 'correct' ? '#4CAF50' : type === 'wrong' ? '#FF7043' : '#E3F2FD';
+}
+
+function shakeProblem() {
+  const card = document.getElementById('problem-card');
+  card.classList.add('shake');
+  setTimeout(() => card.classList.remove('shake'), 500);
+}
+
+function showBurst() {
+  const c = document.getElementById('star-burst');
+  c.style.display = 'block';
+  c.innerHTML = '';
+  for (let i = 0; i < 12; i++) {
+    const d = document.createElement('div');
+    d.className = 'star-dot';
+    d.style.setProperty('--r', (i * 30) + 'deg');
+    d.style.transform = `rotate(${i*30}deg) translateY(-60px)`;
+    c.appendChild(d);
+  }
+  setTimeout(() => { c.style.display = 'none'; c.innerHTML = ''; }, 700);
+}
+
+function renderLevelUp() {
+  document.getElementById('lu-cleared').textContent = LEVELS[state.level].name + ' cleared!';
+  document.getElementById('lu-score').textContent   = state.score;
+  document.getElementById('lu-next').textContent    = LEVELS[state.level + 1].name;
+  if (window.MQ_IMAGES) {
+    document.getElementById('lu-char').src = state.level % 2 === 0
+      ? window.MQ_IMAGES.robot : window.MQ_IMAGES.hero;
+  }
+}
+
+function renderVictory() {
+  const total = QUESTIONS_PER_LEVEL * LEVELS.length;
+  const stars = state.totalCorrect >= total * 0.9 ? 3
+              : state.totalCorrect >= total * 0.7 ? 2 : 1;
+  document.getElementById('v-stars').textContent   = '⭐'.repeat(stars) + '☆'.repeat(3 - stars);
+  document.getElementById('v-score').textContent   = state.score;
+  document.getElementById('v-correct').textContent = state.totalCorrect + ' correct out of ' + total;
+
+  const vf = document.getElementById('victory-floats');
+  vf.innerHTML = '';
+  for (let i = 0; i < 12; i++) {
+    const s = document.createElement('div');
+    s.className = 'victory-float';
+    s.style.bottom = '-20px';
+    s.style.left   = (5 + i * 8) + '%';
+    s.style.animationDuration  = (2 + Math.random() * 2) + 's';
+    s.style.animationDelay     = (i * 0.3) + 's';
+    s.textContent = '⭐';
+    vf.appendChild(s);
+  }
+  if (window.MQ_IMAGES) {
+    document.getElementById('v-robot').src = window.MQ_IMAGES.robot;
+    document.getElementById('v-hero').src  = window.MQ_IMAGES.hero;
+  }
+}
+
+// ── Back button ──
+function mqGoBack() {
+  // If embedded inside Groove Train SPA as an iframe, call parent showPage
+  try {
+    if (window.parent && window.parent !== window && typeof window.parent.showPage === 'function') {
+      window.parent.showPage('train');
+      return;
+    }
+  } catch(e) { /* cross-origin guard */ }
+  // Standalone mode fallback
+  if (typeof window.showPage === 'function') {
+    window.showPage('train');
+  } else {
+    history.back();
+  }
+}
+
+// ── Load character images from JSX file constants ──
+// The images are base64-encoded; we pre-load them here from a helper script
+(function loadImages(){
+  // We use the GROOVE_IMG logo, ROBOT_IMG, HERO_IMG, CITY_IMG, LOGO_IMG
+  // These are injected by the page that embeds this, or by mq-assets.js
+  function tryApply(){
+    if (!window.MQ_IMAGES) return;
+    const imgs = window.MQ_IMAGES;
+    ['city-bg-title','city-bg-game'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el && imgs.city) el.src = imgs.city;
+    });
+    ['mq-logo-title','g-footer-logo'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el && imgs.logo) el.src = imgs.logo;
+    });
+    if (imgs.robot) {
+      document.getElementById('mq-robot-title').src = imgs.robot;
+      document.getElementById('g-char').src          = imgs.robot;
+      document.getElementById('lu-char').src          = imgs.robot;
+      document.getElementById('v-robot').src          = imgs.robot;
+    }
+    if (imgs.hero) {
+      document.getElementById('mq-hero-title').src = imgs.hero;
+      document.getElementById('v-hero').src         = imgs.hero;
+    }
+  }
+  // Try immediately and after a small delay (for async loading)
+  tryApply();
+  setTimeout(tryApply, 100);
+})();
+
+console.log('🎵 Math Quest loaded!');
+</script>
+</body>
+</html>

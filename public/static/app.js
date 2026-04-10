@@ -13,7 +13,7 @@ function boardTrain() {
 }
 
 function showPage(page) {
-  ['page-home','page-train','page-coloring','page-coloring-train'].forEach(function(id){
+  ['page-home','page-train','page-coloring','page-coloring-train','page-math-quest'].forEach(function(id){
     var el = document.getElementById(id);
     if(el) el.style.display = 'none';
   });
