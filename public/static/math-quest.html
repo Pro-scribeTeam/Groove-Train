@@ -807,38 +807,38 @@ console.log('🎵 Math Quest loaded!');
     btn.classList.toggle('muted', muted);
   }
 
-  // Auto-start immediately when the page loads
-  function startMusic() {
-    audio.play().catch(() => {
-      // Browser blocked autoplay – start on first user gesture instead
-      const resume = () => {
-        audio.play().catch(() => {});
-        document.removeEventListener('click',      resume);
-        document.removeEventListener('keydown',    resume);
-        document.removeEventListener('touchstart', resume);
-      };
-      document.addEventListener('click',      resume, { passive: true });
-      document.addEventListener('keydown',    resume, { passive: true });
-      document.addEventListener('touchstart', resume, { passive: true });
-    });
-  }
-
-  // Kick off as soon as DOM is ready
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', startMusic);
-  } else {
-    startMusic();
-  }
+  // ── Play / pause controlled by parent via postMessage ──
+  // Music never starts on its own; parent calls 'mq-play' / 'mq-pause'
+  window.addEventListener('message', function(e) {
+    if (e.data === 'mq-play') {
+      if (muted) return;          // respect mute state
+      audio.play().catch(() => {
+        // Browser still blocking autoplay after gesture – attach one-time listener
+        const unlock = () => {
+          if (!muted) audio.play().catch(() => {});
+          document.removeEventListener('click',      unlock);
+          document.removeEventListener('keydown',    unlock);
+          document.removeEventListener('touchstart', unlock);
+        };
+        document.addEventListener('click',      unlock, { once: true, passive: true });
+        document.addEventListener('keydown',    unlock, { once: true, passive: true });
+        document.addEventListener('touchstart', unlock, { once: true, passive: true });
+      });
+    }
+    if (e.data === 'mq-pause') {
+      audio.pause();
+      audio.currentTime = 0;
+    }
+  });
 
   window.mqToggleMusic = function() {
     muted = !muted;
     audio.muted = muted;
-    // If somehow not playing yet, start now
     if (!muted && audio.paused) audio.play().catch(() => {});
     updateBtn();
   };
 
-  // Pause & reset when leaving the game (back button)
+  // Legacy back-button path (standalone mode)
   window.mqPauseMusic = function() {
     audio.pause();
     audio.currentTime = 0;

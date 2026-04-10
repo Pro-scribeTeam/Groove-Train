@@ -12,7 +12,21 @@ function boardTrain() {
   showPage('train');
 }
 
+function mqSendMsg(msg) {
+  var frame = document.getElementById('math-quest-frame');
+  if (frame && frame.contentWindow) {
+    try { frame.contentWindow.postMessage(msg, '*'); } catch(e) {}
+  }
+}
+
 function showPage(page) {
+  // Pause Math Quest music whenever we leave that page
+  var wasOnMathQuest = document.getElementById('page-math-quest') &&
+                       document.getElementById('page-math-quest').style.display !== 'none';
+  if (wasOnMathQuest && page !== 'math-quest') {
+    mqSendMsg('mq-pause');
+  }
+
   ['page-home','page-train','page-coloring','page-coloring-train','page-math-quest'].forEach(function(id){
     var el = document.getElementById(id);
     if(el) el.style.display = 'none';
@@ -22,6 +36,12 @@ function showPage(page) {
   window.scrollTo(0,0);
   if(page === 'coloring' && typeof initColoring === 'function') initColoring();
   if(page === 'coloring-train' && typeof initColoringTrain === 'function') initColoringTrain();
+
+  // Start Math Quest music only when entering that page
+  if (page === 'math-quest') {
+    // Small delay so the iframe is visible before we ask it to play
+    setTimeout(function() { mqSendMsg('mq-play'); }, 300);
+  }
 }
 
 function goBack() { 
