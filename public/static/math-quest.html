@@ -298,20 +298,23 @@
 
   /* ── Music toggle button (top-right, fixed) ── */
   #mq-music-btn {
-    position: fixed; top: 10px; right: 12px; z-index: 1000;
-    width: 38px; height: 38px; border-radius: 50%;
-    background: rgba(0,0,0,0.55); border: 2px solid rgba(255,215,0,0.45);
-    color: #FFD700; font-size: 16px; line-height: 1;
+    position: fixed; top: 12px; right: 12px; z-index: 1000;
+    padding: 4px 9px; border-radius: 20px;
+    background: rgba(0,0,0,0.55); border: 1.5px solid rgba(255,215,0,0.45);
+    color: #FFD700; font-size: 10px; font-family: 'Fredoka', sans-serif;
+    font-weight: 600; letter-spacing: 0.5px;
     cursor: pointer; backdrop-filter: blur(8px);
-    display: flex; align-items: center; justify-content: center;
-    transition: background 0.2s, border-color 0.2s, transform 0.15s;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    display: flex; align-items: center; gap: 3px;
+    transition: background 0.2s, border-color 0.2s;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.35);
+    white-space: nowrap;
   }
   #mq-music-btn:hover {
-    background: rgba(255,215,0,0.18); border-color: #FFD700;
-    transform: scale(1.1);
+    background: rgba(255,215,0,0.15); border-color: #FFD700;
   }
-  #mq-music-btn.muted { border-color: rgba(255,255,255,0.25); color: rgba(255,255,255,0.4); }
+  #mq-music-btn.muted {
+    border-color: rgba(255,255,255,0.2); color: rgba(255,255,255,0.38);
+  }
 </style>
 </head>
 <body>
@@ -320,7 +323,7 @@
 <button id="mq-back-btn" onclick="mqGoBack()">← Back</button>
 
 <!-- Music toggle (top-right) -->
-<button id="mq-music-btn" onclick="mqToggleMusic()" title="Toggle music">🎵</button>
+<button id="mq-music-btn" onclick="mqToggleMusic()" title="Toggle music"><span id="mq-music-icon">🎵</span><span id="mq-music-label">Mute</span></button>
 
 <!-- Background music -->
 <audio id="mq-audio" src="/static/math-quest-music.mp3" loop preload="auto"></audio>
@@ -791,45 +794,57 @@ console.log('🎵 Math Quest loaded!');
 (function initMusic() {
   const audio = document.getElementById('mq-audio');
   const btn   = document.getElementById('mq-music-btn');
+  const icon  = document.getElementById('mq-music-icon');
+  const label = document.getElementById('mq-music-label');
   if (!audio || !btn) return;
 
-  audio.volume = 0.22;   // quiet background level
-  let started  = false;
-  let muted    = false;
+  audio.volume = 0.22;  // quiet background
+  let muted = false;
 
+  function updateBtn() {
+    if (icon)  icon.textContent  = muted ? '🔇' : '🎵';
+    if (label) label.textContent = muted ? 'Unmute' : 'Mute';
+    btn.classList.toggle('muted', muted);
+  }
+
+  // Auto-start immediately when the page loads
   function startMusic() {
-    if (started) return;
-    started = true;
     audio.play().catch(() => {
-      // Autoplay blocked – will retry on next user gesture
-      started = false;
+      // Browser blocked autoplay – start on first user gesture instead
+      const resume = () => {
+        audio.play().catch(() => {});
+        document.removeEventListener('click',      resume);
+        document.removeEventListener('keydown',    resume);
+        document.removeEventListener('touchstart', resume);
+      };
+      document.addEventListener('click',      resume, { passive: true });
+      document.addEventListener('keydown',    resume, { passive: true });
+      document.addEventListener('touchstart', resume, { passive: true });
     });
   }
 
-  // Try to start on first user interaction anywhere on the page
-  ['click', 'keydown', 'touchstart'].forEach(evt => {
-    document.addEventListener(evt, startMusic, { once: false, passive: true });
-  });
+  // Kick off as soon as DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', startMusic);
+  } else {
+    startMusic();
+  }
 
   window.mqToggleMusic = function() {
-    if (!started) {
-      // First press: unmute and start
-      startMusic();
-      muted = false;
-    } else {
-      muted = !muted;
-      audio.muted = muted;
-    }
-    btn.textContent = muted ? '🔇' : '🎵';
-    btn.classList.toggle('muted', muted);
+    muted = !muted;
+    audio.muted = muted;
+    // If somehow not playing yet, start now
+    if (!muted && audio.paused) audio.play().catch(() => {});
+    updateBtn();
   };
 
-  // When leaving the page (back button), pause gracefully
+  // Pause & reset when leaving the game (back button)
   window.mqPauseMusic = function() {
     audio.pause();
     audio.currentTime = 0;
-    started = false;
   };
+
+  updateBtn(); // set initial label
 })();
 </script>
 </body>
