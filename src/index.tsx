@@ -614,7 +614,6 @@ app.get('/', (c) => {
   </div>
   <div style="padding-top:48px;">
     <iframe id="word-builder-frame"
-      src="/static/word-builder.html"
       style="width:100%;height:calc(100vh - 48px);border:none;display:block;"
       title="Word Builder Game"
       allow="autoplay"

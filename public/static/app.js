@@ -42,6 +42,14 @@ function showPage(page) {
     // Small delay so the iframe is visible before we ask it to play
     setTimeout(function() { mqSendMsg('mq-play'); }, 300);
   }
+
+  // Load Word Builder iframe on first visit (deferred to avoid Babel blocking main thread)
+  if (page === 'word-builder') {
+    var wbFrame = document.getElementById('word-builder-frame');
+    if (wbFrame && !wbFrame.src) {
+      wbFrame.src = './static/word-builder.html';
+    }
+  }
 }
 
 function goBack() { 
