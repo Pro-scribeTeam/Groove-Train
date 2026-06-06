@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Word Builder – Groove Train Time</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="/static/wb-assets.js"></script>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #0a1f14; font-family: 'Baloo 2', sans-serif; }
+  #root { min-height: 100vh; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useCallback, useRef } = React;
+
+const WORD_LISTS = {
+  easy: [
+    { word: "CAT", hint: "A furry pet that purrs 🐱", emoji: "🐱" },
+    { word: "DOG", hint: "A loyal pet that barks 🐶", emoji: "🐶" },
+    { word: "SUN", hint: "It shines in the sky ☀️", emoji: "☀️" },
+    { word: "HAT", hint: "You wear it on your head 🎩", emoji: "🎩" },
+    { word: "BIG", hint: "The opposite of small", emoji: "🐘" },
+    { word: "RUN", hint: "Moving your legs fast 🏃", emoji: "🏃" },
+    { word: "BED", hint: "Where you sleep at night 🛏️", emoji: "🛏️" },
+    { word: "CUP", hint: "You drink from it ☕", emoji: "☕" },
+    { word: "FAN", hint: "Keeps you cool on hot days", emoji: "🌀" },
+    { word: "MAP", hint: "Helps you find your way 🗺️", emoji: "🗺️" },
+    { word: "HOP", hint: "Like a bunny jumps 🐰", emoji: "🐰" },
+    { word: "JAM", hint: "Sweet spread on toast 🍓", emoji: "🍓" },
+  ],
+  medium: [
+    { word: "TREE", hint: "It has leaves and a trunk 🌳", emoji: "🌳" },
+    { word: "BIRD", hint: "It flies and has feathers 🐦", emoji: "🐦" },
+    { word: "FISH", hint: "It swims in the water 🐟", emoji: "🐟" },
+    { word: "STAR", hint: "Twinkles in the night sky ⭐", emoji: "⭐" },
+    { word: "BOOK", hint: "You read stories in it 📖", emoji: "📖" },
+    { word: "FROG", hint: "Green and jumps, says ribbit 🐸", emoji: "🐸" },
+    { word: "RAIN", hint: "Water falling from clouds 🌧️", emoji: "🌧️" },
+    { word: "SHIP", hint: "Sails across the ocean 🚢", emoji: "🚢" },
+    { word: "LAMP", hint: "Gives light in a room 💡", emoji: "💡" },
+    { word: "DRUM", hint: "A musical instrument you hit 🥁", emoji: "🥁" },
+    { word: "CAKE", hint: "A sweet birthday treat 🎂", emoji: "🎂" },
+    { word: "KING", hint: "Wears a crown and rules 👑", emoji: "👑" },
+  ],
+  hard: [
+    { word: "MUSIC", hint: "Songs and melodies 🎵", emoji: "🎵" },
+    { word: "DANCE", hint: "Moving to the beat 💃", emoji: "💃" },
+    { word: "TIGER", hint: "A big striped wild cat 🐯", emoji: "🐯" },
+    { word: "TRAIN", hint: "Rides on tracks, choo choo 🚂", emoji: "🚂" },
+    { word: "BRAIN", hint: "You think with this 🧠", emoji: "🧠" },
+    { word: "GLOBE", hint: "A round model of Earth 🌍", emoji: "🌍" },
+    { word: "PIANO", hint: "Black and white keys 🎹", emoji: "🎹" },
+    { word: "SMILE", hint: "A happy face expression 😊", emoji: "😊" },
+    { word: "CROWN", hint: "A king or queen wears it 👑", emoji: "👑" },
+    { word: "STORM", hint: "Thunder and lightning ⛈️", emoji: "⛈️" },
+    { word: "MAGIC", hint: "Wizards and spells ✨", emoji: "✨" },
+    { word: "JUNGLE", hint: "A wild tropical forest 🌴", emoji: "🌴" },
+  ],
+};
+
+const LEVELS = [
+  { name: "Treehouse Trail", difficulty: "easy", guide: "bluejay" },
+  { name: "Vine Bridge", difficulty: "easy", guide: "bulldog" },
+  { name: "Canopy Climb", difficulty: "medium", guide: "bluejay" },
+  { name: "Jungle River", difficulty: "medium", guide: "bulldog" },
+  { name: "Charlie's Peak", difficulty: "hard", guide: "bluejay" },
+];
+
+const CHEERS = ["Purrfect! 🐱", "Groovy! 🎶", "You nailed it! ⭐", "Cool cat move! 😎", "Fantastic! 🎵", "Way to go! 🌟"];
+const MISSES = ["Not quite! Try again! 💪", "So close! Keep going! 🎵", "Shake it off, try again! 🌟"];
+
+function shuffleArray(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function LeafParticle({ x, delay }) {
+  const leaves = ["🍃", "🌿", "🍂", "🌱", "✨"];
+  const leaf = leaves[Math.floor(Math.random() * leaves.length)];
+  return (
+    <div style={{
+      position: "absolute", left: x, top: -20, fontSize: 18,
+      animation: `leafFall 4s ease-in ${delay}s infinite`, opacity: 0.5, pointerEvents: "none",
+    }}>{leaf}</div>
+  );
+}
+
+function WordBuilder() {
+  const [screen, setScreen] = useState("title");
+  const [level, setLevel] = useState(0);
+  const [wordIndex, setWordIndex] = useState(0);
+  const [score, setScore] = useState(0);
+  const [streak, setStreak] = useState(0);
+  const [totalCorrect, setTotalCorrect] = useState(0);
+  const [feedback, setFeedback] = useState(null);
+  const [characterMsg, setCharacterMsg] = useState("");
+  const [selectedTiles, setSelectedTiles] = useState([]);
+  const [availableTiles, setAvailableTiles] = useState([]);
+  const [currentWord, setCurrentWord] = useState(null);
+  const [hintShown, setHintShown] = useState(false);
+  const [shake, setShake] = useState(false);
+  const [showBurst, setShowBurst] = useState(false);
+  const [wordsPerLevel] = useState(4);
+  const [wordsCompleted, setWordsCompleted] = useState(0);
+  const feedbackTimer = useRef(null);
+
+  const setupWord = useCallback((lvl, wIdx) => {
+    const diff = LEVELS[lvl].difficulty;
+    const words = WORD_LISTS[diff];
+    const w = words[wIdx % words.length];
+    const uniqueLetters = [...new Set(w.word.split(""))];
+    const extraLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").filter(l => !uniqueLetters.includes(l));
+    const extras = shuffleArray(extraLetters).slice(0, Math.max(2, Math.min(4, 8 - uniqueLetters.length)));
+    const tiles = shuffleArray([...uniqueLetters, ...extras]).map((l, i) => ({ id: i, letter: l }));
+    setAvailableTiles(tiles);
+    setSelectedTiles([]);
+    setCurrentWord(w);
+    setHintShown(false);
+    setFeedback(null);
+  }, []);
+
+  const startGame = () => {
+    setScreen("game");
+    setLevel(0);
+    setScore(0);
+    setStreak(0);
+    setTotalCorrect(0);
+    setWordsCompleted(0);
+    setWordIndex(0);
+    setCharacterMsg("Welcome to the Jungle! Let's spell! 🌴");
+    setupWord(0, 0);
+  };
+
+  const selectTile = (tile) => {
+    if (feedback) return;
+    if (selectedTiles.length >= currentWord.word.length) return;
+    const newSelected = [...selectedTiles, { ...tile, slotId: Date.now() + Math.random() }];
+    setSelectedTiles(newSelected);
+
+    if (newSelected.length === currentWord.word.length) {
+      const attempt = newSelected.map(t => t.letter).join("");
+      if (attempt === currentWord.word) {
+        const points = 15 + streak * 5 + (hintShown ? 0 : 10);
+        setScore(s => s + points);
+        setStreak(s => s + 1);
+        setTotalCorrect(t => t + 1);
+        setFeedback("correct");
+        setShowBurst(true);
+        setCharacterMsg(CHEERS[Math.floor(Math.random() * CHEERS.length)]);
+        setTimeout(() => setShowBurst(false), 700);
+
+        if (feedbackTimer.current) clearTimeout(feedbackTimer.current);
+        feedbackTimer.current = setTimeout(() => {
+          const nextCompleted = wordsCompleted + 1;
+          setWordsCompleted(nextCompleted);
+          if (nextCompleted >= wordsPerLevel) {
+            if (level >= LEVELS.length - 1) {
+              setScreen("victory");
+            } else {
+              setScreen("levelUp");
+            }
+          } else {
+            const nextWIdx = wordIndex + 1;
+            setWordIndex(nextWIdx);
+            setupWord(level, nextWIdx);
+          }
+        }, 1300);
+      } else {
+        setStreak(0);
+        setFeedback("wrong");
+        setShake(true);
+        setCharacterMsg(MISSES[Math.floor(Math.random() * MISSES.length)]);
+        setTimeout(() => setShake(false), 500);
+        if (feedbackTimer.current) clearTimeout(feedbackTimer.current);
+        feedbackTimer.current = setTimeout(() => {
+          setFeedback(null);
+          setSelectedTiles([]);
+        }, 1000);
+      }
+    }
+  };
+
+  const removeTile = (index) => {
+    if (feedback) return;
+    setSelectedTiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const nextLevel = () => {
+    const nl = level + 1;
+    setLevel(nl);
+    setWordsCompleted(0);
+    const nextWIdx = wordIndex + 1;
+    setWordIndex(nextWIdx);
+    setCharacterMsg(`Welcome to ${LEVELS[nl].name}! 🌿`);
+    setupWord(nl, nextWIdx);
+    setScreen("game");
+  };
+
+  const guideImg = (lvl) => LEVELS[lvl || 0].guide === "bluejay" ? window.WB_IMAGES.bluejay : window.WB_IMAGES.bulldog;
+  const progress = (wordsCompleted / wordsPerLevel) * 100;
+
+  const styles = `
+    @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Quicksand:wght@400;500;600;700&display=swap');
+    @keyframes leafFall { 0% { transform: translateY(0) rotate(0deg); opacity: 0.5; } 100% { transform: translateY(110vh) rotate(720deg); opacity: 0; } }
+    @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+    @keyframes glow { 0%, 100% { box-shadow: 0 0 15px rgba(255,193,7,0.4); } 50% { box-shadow: 0 0 30px rgba(255,193,7,0.8); } }
+    @keyframes bobble { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+    @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+    @keyframes popIn { 0% { transform: scale(0.7); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+    @keyframes bounceIn { 0% { transform: scale(0.3); opacity: 0; } 50% { transform: scale(1.08); } 100% { transform: scale(1); opacity: 1; } }
+    @keyframes tilePop { 0% { transform: scale(0.5) rotate(-10deg); opacity: 0; } 100% { transform: scale(1) rotate(0deg); opacity: 1; } }
+    @keyframes correctGlow { 0% { box-shadow: 0 0 0 0 rgba(76,175,80,0.6); } 100% { box-shadow: 0 0 0 16px rgba(76,175,80,0); } }
+    @keyframes titleShine { 0%, 100% { text-shadow: 0 0 15px rgba(255,193,7,0.5), 0 2px 4px rgba(0,0,0,0.5); } 50% { text-shadow: 0 0 30px rgba(255,193,7,0.9), 0 2px 4px rgba(0,0,0,0.5); } }
+    @keyframes floatVine { 0%, 100% { transform: rotate(-2deg); } 50% { transform: rotate(2deg); } }
+  `;
+
+  const bgBase = "linear-gradient(180deg, #1a3a2a 0%, #0d2818 40%, #0a1f14 100%)";
+  const cardBg = "rgba(10,31,20,0.75)";
+  const accent = "#FFC107";
+  const accentLight = "#FFE082";
+  const textPrimary = "#E8F5E9";
+  const textSecondary = "#A5D6A7";
+
+  // ---- TITLE SCREEN ----
+  if (screen === "title") {
+    return (
+      <div style={{
+        minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center",
+        justifyContent: "center", background: bgBase,
+        position: "relative", overflow: "hidden", fontFamily: "'Baloo 2', 'Quicksand', sans-serif",
+        padding: "40px 20px 20px",
+      }}>
+        <style>{styles}</style>
+        <img src={window.WB_IMAGES.treehouse} alt="" style={{
+          position: "absolute", top: 0, left: 0, width: "100%", height: "100%",
+          objectFit: "cover", opacity: 0.2, pointerEvents: "none",
+        }} />
+        {Array.from({ length: 6 }).map((_, i) => (
+          <LeafParticle key={i} x={`${8 + i * 15}%`} delay={i * 0.7} />
+        ))}
+
+        <div style={{ position: "relative", zIndex: 10, textAlign: "center" }}>
+          <img src={window.WB_IMAGES.charlie} alt="Cool Cat Charlie" style={{
+            width: "clamp(380px, 90vw, 580px)", height: "auto", marginBottom: -50,
+            filter: "drop-shadow(0 4px 24px rgba(255,193,7,0.4))",
+            animation: "bobble 3s ease-in-out infinite",
+            position: "relative", zIndex: 1,
+          }} />
+
+          <h1 style={{
+            fontSize: "clamp(2.4rem, 8vw, 3.8rem)", fontWeight: 800, color: accent,
+            margin: "0 0 2px", letterSpacing: 3,
+            animation: "titleShine 3s ease-in-out infinite",
+            fontFamily: "'Baloo 2', sans-serif",
+            position: "relative", zIndex: 2,
+          }}>WORD BUILDER</h1>
+
+          <p style={{
+            color: textSecondary, fontSize: "clamp(0.8rem, 2.5vw, 1rem)", margin: "0 0 16px",
+            fontWeight: 600, letterSpacing: 1, opacity: 0.85,
+          }}>🌴 A Groove Train Jungle Adventure 🌴</p>
+
+          <div style={{
+            display: "flex", gap: 12, justifyContent: "center", marginBottom: 16,
+            animation: "popIn 0.8s ease-out",
+          }}>
+            <img src={window.WB_IMAGES.bluejay} alt="Blue Jay" style={{
+              width: 180, height: "auto", borderRadius: 14,
+              border: "2px solid " + accent, background: "rgba(0,0,0,0.3)",
+              animation: "bobble 2.5s ease-in-out infinite",
+            }} />
+            <img src={window.WB_IMAGES.bulldog} alt="Bulldog" style={{
+              width: 180, height: "auto", borderRadius: 14,
+              border: "2px solid #66BB6A", background: "rgba(0,0,0,0.3)",
+              animation: "bobble 2.5s ease-in-out 0.3s infinite",
+            }} />
+          </div>
+
+          <div style={{
+            background: "rgba(255,255,255,0.06)", borderRadius: 14, padding: "12px 20px",
+            marginBottom: 16, backdropFilter: "blur(8px)", border: "1px solid rgba(255,193,7,0.15)",
+            maxWidth: 320, margin: "0 auto 16px",
+          }}>
+            <p style={{ color: textSecondary, fontSize: 13, margin: 0, lineHeight: 1.5 }}>
+              Drag letter tiles to spell words! Cool Cat Charlie and friends will guide you through the jungle. 🐱
+            </p>
+          </div>
+
+          <button onClick={startGame} style={{
+            padding: "14px 44px", fontSize: "clamp(1rem, 4vw, 1.3rem)", fontWeight: 700,
+            background: `linear-gradient(135deg, ${accent}, #FF8F00)`,
+            color: "#1a3a2a", border: "none", borderRadius: 50, cursor: "pointer",
+            animation: "glow 2s ease-in-out infinite, pulse 2s ease-in-out infinite",
+            fontFamily: "'Baloo 2', sans-serif", letterSpacing: 1,
+            boxShadow: "0 4px 20px rgba(255,193,7,0.4)",
+          }}>🌿 START ADVENTURE</button>
+
+        </div>
+      </div>
+    );
+  }
+
+  // ---- LEVEL UP SCREEN ----
+  if (screen === "levelUp") {
+    return (
+      <div style={{
+        minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center",
+        justifyContent: "center", background: bgBase,
+        fontFamily: "'Baloo 2', 'Quicksand', sans-serif", padding: 20, textAlign: "center",
+        position: "relative",
+      }}>
+        <style>{styles}</style>
+        <img src={window.WB_IMAGES.treehouse} alt="" style={{
+          position: "absolute", inset: 0, width: "100%", height: "100%",
+          objectFit: "cover", opacity: 0.15, pointerEvents: "none",
+        }} />
+        <div style={{ animation: "bounceIn 0.6s ease-out", position: "relative", zIndex: 10 }}>
+          <div style={{ fontSize: 56, marginBottom: 12 }}>🎉</div>
+          <h2 style={{ color: accent, fontSize: "2rem", margin: "0 0 6px" }}>Trail Complete!</h2>
+          <p style={{ color: textSecondary, fontSize: "1.1rem", margin: "0 0 6px" }}>
+            {LEVELS[level].name} cleared!
+          </p>
+          <p style={{ color: textPrimary, fontSize: "1.2rem", margin: "0 0 20px" }}>
+            Score: <span style={{ color: accent, fontWeight: 700 }}>{score}</span>
+          </p>
+          <img src={guideImg(level)} alt="" style={{
+            width: 180, height: "auto", borderRadius: 14,
+            border: "3px solid " + accent, marginBottom: 20,
+          }} />
+          <p style={{ color: textPrimary, fontSize: "1rem", margin: "0 0 16px" }}>
+            Next: <strong style={{ color: accent }}>{LEVELS[level + 1].name}</strong>
+          </p>
+          <button onClick={nextLevel} style={{
+            padding: "12px 36px", fontSize: "1.1rem", fontWeight: 700,
+            background: `linear-gradient(135deg, ${accent}, #FF8F00)`,
+            color: "#1a3a2a", border: "none", borderRadius: 50, cursor: "pointer",
+            fontFamily: "'Baloo 2', sans-serif",
+            boxShadow: "0 4px 16px rgba(255,193,7,0.4)",
+          }}>Continue →</button>
+        </div>
+      </div>
+    );
+  }
+
+  // ---- VICTORY SCREEN ----
+  if (screen === "victory") {
+    const stars = totalCorrect >= wordsPerLevel * LEVELS.length * 0.9 ? 3
+      : totalCorrect >= wordsPerLevel * LEVELS.length * 0.7 ? 2 : 1;
+    return (
+      <div style={{
+        minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center",
+        justifyContent: "center", background: bgBase, position: "relative", overflow: "hidden",
+        fontFamily: "'Baloo 2', 'Quicksand', sans-serif", padding: 20, textAlign: "center",
+      }}>
+        <style>{styles}</style>
+        <img src={window.WB_IMAGES.treehouse} alt="" style={{
+          position: "absolute", inset: 0, width: "100%", height: "100%",
+          objectFit: "cover", opacity: 0.15, pointerEvents: "none",
+        }} />
+        {Array.from({ length: 10 }).map((_, i) => (
+          <div key={i} style={{
+            position: "absolute", bottom: -20, left: `${5 + i * 10}%`,
+            fontSize: 22, animation: `leafFall ${2 + Math.random() * 2}s ease-in ${i * 0.3}s infinite`,
+            pointerEvents: "none",
+          }}>⭐</div>
+        ))}
+        <div style={{ animation: "bounceIn 0.8s ease-out", position: "relative", zIndex: 10 }}>
+          <div style={{ fontSize: 64, marginBottom: 8 }}>🏆</div>
+          <h2 style={{ color: accent, fontSize: "2.2rem", margin: "0 0 6px" }}>Jungle Complete!</h2>
+          <div style={{ fontSize: 36, margin: "6px 0" }}>{"⭐".repeat(stars)}{"☆".repeat(3 - stars)}</div>
+          <p style={{ color: textPrimary, fontSize: "1.2rem", margin: "0 0 4px" }}>
+            Final Score: <strong style={{ color: accent }}>{score}</strong>
+          </p>
+          <p style={{ color: textSecondary, fontSize: "1rem", margin: "0 0 20px" }}>
+            {totalCorrect} words spelled correctly!
+          </p>
+          <div style={{ display: "flex", gap: 10, justifyContent: "center", marginBottom: 20 }}>
+            <img src={window.WB_IMAGES.bluejay} alt="" style={{ width: 180, borderRadius: 12, border: "2px solid " + accent }} />
+            <img src={window.WB_IMAGES.charlie} alt="" style={{ width: 200, borderRadius: 12, border: "2px solid " + accent }} />
+            <img src={window.WB_IMAGES.bulldog} alt="" style={{ width: 180, borderRadius: 12, border: "2px solid #66BB6A" }} />
+          </div>
+          <button onClick={() => setScreen("title")} style={{
+            padding: "12px 36px", fontSize: "1.1rem", fontWeight: 700,
+            background: `linear-gradient(135deg, ${accent}, #FF8F00)`,
+            color: "#1a3a2a", border: "none", borderRadius: 50, cursor: "pointer",
+            fontFamily: "'Baloo 2', sans-serif",
+            boxShadow: "0 4px 16px rgba(255,193,7,0.4)",
+          }}>🌿 Play Again</button>
+        </div>
+      </div>
+    );
+  }
+
+  // ---- GAME SCREEN ----
+  return (
+    <div style={{
+      minHeight: "100vh", display: "flex", flexDirection: "column",
+      background: bgBase, position: "relative", overflow: "hidden",
+      fontFamily: "'Baloo 2', 'Quicksand', sans-serif",
+    }}>
+      <style>{styles}</style>
+      <img src={window.WB_IMAGES.treehouse} alt="" style={{
+        position: "absolute", bottom: 0, left: 0, width: "100%", height: "50%",
+        objectFit: "cover", opacity: 0.12, pointerEvents: "none",
+      }} />
+      {Array.from({ length: 4 }).map((_, i) => (
+        <LeafParticle key={i} x={`${10 + i * 22}%`} delay={i * 0.8} />
+      ))}
+
+      {/* Header */}
+      <div style={{
+        display: "flex", justifyContent: "space-between", alignItems: "center",
+        padding: "10px 14px", position: "relative", zIndex: 20,
+        background: "rgba(10,31,20,0.7)", backdropFilter: "blur(10px)",
+        borderBottom: "1px solid rgba(255,193,7,0.12)",
+      }}>
+        <div>
+          <div style={{ color: accent, fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1 }}>
+            Level {level + 1}
+          </div>
+          <div style={{ color: textPrimary, fontSize: 13, fontWeight: 600 }}>{LEVELS[level].name}</div>
+        </div>
+        <div style={{ textAlign: "center", flex: 1 }}>
+          <div style={{
+            height: 7, background: "rgba(255,255,255,0.08)", borderRadius: 4,
+            margin: "0 14px", overflow: "hidden",
+          }}>
+            <div style={{
+              height: "100%", width: `${progress}%`,
+              background: `linear-gradient(90deg, #66BB6A, ${accent})`,
+              borderRadius: 4, transition: "width 0.4s ease",
+            }} />
+          </div>
+          <div style={{ color: textSecondary, fontSize: 10, marginTop: 2 }}>
+            {wordsCompleted}/{wordsPerLevel}
+          </div>
+        </div>
+        <div style={{ textAlign: "right" }}>
+          <div style={{ color: accent, fontSize: 18, fontWeight: 700 }}>{score}</div>
+          {streak > 1 && (
+            <div style={{ color: "#FF8F00", fontSize: 10, fontWeight: 600 }}>🔥 {streak}x</div>
+          )}
+        </div>
+      </div>
+
+      {/* Main game area */}
+      <div style={{
+        flex: 1, display: "flex", flexDirection: "column", alignItems: "center",
+        justifyContent: "center", padding: "12px 16px", position: "relative", zIndex: 10,
+      }}>
+        {/* Character + speech */}
+        <div style={{
+          display: "flex", alignItems: "flex-end", gap: 10, marginBottom: 14,
+          animation: "popIn 0.4s ease-out",
+        }}>
+          <img src={guideImg(level)} alt="Guide" style={{
+            width: 140, height: "auto", borderRadius: 10,
+            border: "2px solid rgba(255,193,7,0.3)",
+            animation: feedback === "correct" ? "bobble 0.5s ease" : undefined,
+          }} />
+          <div style={{
+            background: "rgba(255,255,255,0.08)", backdropFilter: "blur(8px)",
+            borderRadius: "14px 14px 14px 4px", padding: "8px 14px",
+            border: "1px solid rgba(255,193,7,0.15)", maxWidth: 200,
+            color: feedback === "correct" ? "#66BB6A" : feedback === "wrong" ? "#EF5350" : textPrimary,
+            fontSize: 13, fontWeight: 600,
+          }}>
+            {characterMsg || "Spell the word!"}
+          </div>
+        </div>
+
+        {currentWord && (
+          <>
+            {/* Emoji + Hint */}
+            <div style={{ textAlign: "center", marginBottom: 10 }}>
+              <div style={{ fontSize: 40, marginBottom: 4 }}>{currentWord.emoji}</div>
+              {hintShown ? (
+                <div style={{
+                  color: accentLight, fontSize: 13, fontWeight: 500,
+                  background: "rgba(255,193,7,0.08)", borderRadius: 10, padding: "4px 14px",
+                  border: "1px solid rgba(255,193,7,0.15)", display: "inline-block",
+                }}>💡 {currentWord.hint}</div>
+              ) : (
+                <button onClick={() => setHintShown(true)} style={{
+                  background: "rgba(255,193,7,0.1)", border: "1px solid rgba(255,193,7,0.2)",
+                  color: accent, borderRadius: 20, padding: "4px 16px", fontSize: 12,
+                  fontWeight: 600, cursor: "pointer",
+                }}>💡 Show Hint</button>
+              )}
+            </div>
+
+            {/* Word slots */}
+            <div style={{
+              display: "flex", gap: 6, justifyContent: "center", marginBottom: 18,
+              animation: shake ? "shake 0.4s ease" : undefined,
+            }}>
+              {Array.from({ length: currentWord.word.length }).map((_, i) => {
+                const tile = selectedTiles[i];
+                const isCorrect = feedback === "correct";
+                const isWrong = feedback === "wrong" && selectedTiles.length === currentWord.word.length;
+                return (
+                  <div key={i} onClick={() => tile && removeTile(i)} style={{
+                    width: "clamp(42px, 12vw, 56px)", height: "clamp(48px, 14vw, 64px)",
+                    borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center",
+                    fontSize: "clamp(1.3rem, 5vw, 1.8rem)", fontWeight: 800,
+                    fontFamily: "'Baloo 2', sans-serif",
+                    background: tile
+                      ? isCorrect ? "rgba(76,175,80,0.25)" : isWrong ? "rgba(239,83,80,0.2)" : "rgba(255,193,7,0.12)"
+                      : "rgba(255,255,255,0.04)",
+                    border: `2px ${tile ? "solid" : "dashed"}`,
+                    borderColor: tile
+                      ? isCorrect ? "#66BB6A" : isWrong ? "#EF5350" : accent
+                      : "rgba(255,255,255,0.12)",
+                    color: tile
+                      ? isCorrect ? "#66BB6A" : isWrong ? "#EF5350" : "#fff"
+                      : "transparent",
+                    cursor: tile && !feedback ? "pointer" : "default",
+                    transition: "all 0.2s",
+                    animation: tile ? "tilePop 0.25s ease-out" : undefined,
+                    boxShadow: isCorrect ? "0 0 12px rgba(76,175,80,0.3)" : "none",
+                  }}>
+                    {tile ? tile.letter : ""}
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Letter tiles */}
+            <div style={{
+              display: "flex", flexWrap: "wrap", gap: 8, justifyContent: "center",
+              maxWidth: 360, animation: "popIn 0.5s ease-out",
+            }}>
+              {availableTiles.map((tile, i) => (
+                <button key={tile.id} onClick={() => selectTile(tile)} disabled={!!feedback}
+                  style={{
+                    width: "clamp(44px, 11vw, 54px)", height: "clamp(44px, 11vw, 54px)",
+                    borderRadius: 12, border: "2px solid",
+                    borderColor: "rgba(255,193,7,0.25)",
+                    background: "rgba(255,255,255,0.07)",
+                    color: "#fff",
+                    fontSize: "clamp(1.2rem, 4.5vw, 1.5rem)", fontWeight: 700,
+                    fontFamily: "'Baloo 2', sans-serif",
+                    cursor: feedback ? "default" : "pointer",
+                    transition: "all 0.2s",
+                    backdropFilter: "blur(6px)",
+                    animation: `tilePop 0.3s ease-out ${i * 0.05}s both`,
+                  }}>
+                  {tile.letter}
+                </button>
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+
+      {/* Footer */}
+      <div style={{
+        display: "flex", alignItems: "center", justifyContent: "center",
+        gap: 6, padding: "6px 0 10px", position: "relative", zIndex: 10,
+      }}>
+      </div>
+    </div>
+  );
+}
+
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<WordBuilder />);
+</script>
+</body>
+</html>

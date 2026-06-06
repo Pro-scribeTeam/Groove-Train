@@ -73,6 +73,12 @@ app.get('/', (c) => {
       <p>Solve addition, subtraction &amp; multiplication puzzles across 5 musical levels — earn stars!</p>
       <button onclick="showPage('math-quest')" style="margin-top:12px;padding:10px 24px;background:transparent;border:2px solid #00c8ff;color:#00c8ff;font-family:'Orbitron',sans-serif;font-size:0.72rem;letter-spacing:2px;text-transform:uppercase;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);">▶ Play Math Quest</button>
     </div>
+    <div class="card" style="grid-column:span 1;">
+      <span class="card-icon" style="animation-delay:1s">📝</span>
+      <h3>Word Builder</h3>
+      <p>Build words letter by letter across 5 fun levels — challenge your spelling skills!</p>
+      <button onclick="showPage('word-builder')" style="margin-top:12px;padding:10px 24px;background:transparent;border:2px solid #a855f7;color:#a855f7;font-family:'Orbitron',sans-serif;font-size:0.72rem;letter-spacing:2px;text-transform:uppercase;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);">▶ Play Word Builder</button>
+    </div>
     <div class="card">
       <span class="card-icon" style="animation-delay:.8s">📺</span>
       <h3>Music Videos</h3>
@@ -595,6 +601,22 @@ app.get('/', (c) => {
       src="/static/math-quest.html"
       style="width:100%;height:calc(100vh - 48px);border:none;display:block;"
       title="Math Quest Game"
+      allow="autoplay"
+    ></iframe>
+  </div>
+</div>
+
+<!-- ═══ WORD BUILDER PAGE ═══ -->
+<div id="page-word-builder" style="display:none; min-height:100vh; background:#1a0a2e;">
+  <div id="wb-nav" style="position:fixed;top:0;left:0;width:100%;z-index:999;background:rgba(0,0,0,0.5);padding:10px 16px;display:flex;align-items:center;backdrop-filter:blur(8px);border-bottom:1px solid rgba(168,85,247,0.15);">
+    <button class="back-btn" onclick="showPage('train')" style="font-family:'Orbitron',sans-serif;font-size:0.75rem;">← Back</button>
+    <span style="margin-left:16px;color:#a855f7;font-family:'Orbitron',sans-serif;font-size:0.8rem;letter-spacing:2px;">📝 WORD BUILDER</span>
+  </div>
+  <div style="padding-top:48px;">
+    <iframe id="word-builder-frame"
+      src="/static/word-builder.html"
+      style="width:100%;height:calc(100vh - 48px);border:none;display:block;"
+      title="Word Builder Game"
       allow="autoplay"
     ></iframe>
   </div>

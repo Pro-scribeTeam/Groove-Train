@@ -27,7 +27,7 @@ function showPage(page) {
     mqSendMsg('mq-pause');
   }
 
-  ['page-home','page-train','page-coloring','page-coloring-train','page-math-quest'].forEach(function(id){
+  ['page-home','page-train','page-coloring','page-coloring-train','page-math-quest','page-word-builder'].forEach(function(id){
     var el = document.getElementById(id);
     if(el) el.style.display = 'none';
   });
